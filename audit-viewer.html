@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIP - Audit Log Viewer (Super Admin Only)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff3366;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3366, #cc0033);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00d4ff;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .filters {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #00d4ff;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00d4ff;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .log-table {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #00d4ff;
+        }
+
+        .log-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .log-table th {
+            background: rgba(0, 212, 255, 0.2);
+            padding: 15px;
+            text-align: left;
+            color: #00d4ff;
+            font-weight: bold;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .log-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .log-table tr:hover {
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .action-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .action-login {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .action-module {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .action-denied {
+            background: rgba(255, 51, 102, 0.2);
+            color: #ff3366;
+        }
+
+        .action-export {
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+        }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .role-user {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+
+        .role-data {
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+        }
+
+        .role-admin {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .role-superadmin {
+            background: rgba(255, 51, 102, 0.2);
+            color: #ff3366;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🔍 AUDIT LOG VIEWER</h1>
+        <p style="color: #ff3366;">⚠️ SUPER ADMIN ACCESS ONLY ⚠️</p>
+        <p style="color: #aaa; margin-top: 10px;">Complete System Activity & Security Logs</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid" id="statsGrid">
+        <!-- Populated by JavaScript -->
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn btn-primary" onclick="refreshLogs()">🔄 Refresh Logs</button>
+        <button class="btn btn-success" onclick="exportLogs('json')">📥 Export JSON</button>
+        <button class="btn btn-success" onclick="exportLogs('csv')">📥 Export CSV</button>
+        <button class="btn btn-danger" onclick="clearAllLogs()">🗑️ Clear All Logs</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <h3 style="color: #00d4ff; margin-bottom: 15px;">🔍 Filter Logs</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+            <div class="filter-group">
+                <label>Username:</label>
+                <input type="text" id="filterUsername" placeholder="Filter by username" oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>Role:</label>
+                <select id="filterRole" onchange="applyFilters()">
+                    <option value="">All Roles</option>
+                    <option value="user">User</option>
+                    <option value="data">Data Analyst</option>
+                    <option value="admin">Administrator</option>
+                    <option value="superadmin">Super Admin</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Action:</label>
+                <input type="text" id="filterAction" placeholder="Filter by action" oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>Show Last:</label>
+                <select id="filterLimit" onchange="applyFilters()">
+                    <option value="50">50 logs</option>
+                    <option value="100" selected>100 logs</option>
+                    <option value="500">500 logs</option>
+                    <option value="all">All logs</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Table -->
+    <div class="log-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Session ID</th>
+                </tr>
+            </thead>
+            <tbody id="logTableBody">
+                <!-- Populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/rbac.js"></script>
+    <script src="js/audit-logger.js"></script>
+    <script>
+        // Check if user is Super Admin
+        window.rbacManager.restoreSession();
+        const currentRole = window.rbacManager.getCurrentRole();
+
+        if (!currentRole || currentRole.level !== 4) {
+            alert('⛔ ACCESS DENIED\n\nThis page is restricted to Super Administrators only.');
+            window.location.href = 'index.html';
+        }
+
+        let allLogs = [];
+        let filteredLogs = [];
+
+        function loadStatistics() {
+            const stats = window.auditLogger.getStatistics();
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalLogs}</div>
+                    <div class="stat-label">Total Logs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.uniqueUsers}</div>
+                    <div class="stat-label">Unique Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.uniqueSessions}</div>
+                    <div class="stat-label">Active Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Object.keys(stats.actionBreakdown).length}</div>
+                    <div class="stat-label">Action Types</div>
+                </div>
+            `;
+        }
+
+        function refreshLogs() {
+            allLogs = window.auditLogger.getAllLogs().reverse();
+            applyFilters();
+            loadStatistics();
+        }
+
+        function applyFilters() {
+            const username = document.getElementById('filterUsername').value.toLowerCase();
+            const role = document.getElementById('filterRole').value;
+            const action = document.getElementById('filterAction').value.toLowerCase();
+            const limit = document.getElementById('filterLimit').value;
+
+            filteredLogs = allLogs.filter(log => {
+                if (username && !log.username.toLowerCase().includes(username)) return false;
+                if (role && log.role !== role) return false;
+                if (action && !log.action.toLowerCase().includes(action)) return false;
+                return true;
+            });
+
+            if (limit !== 'all') {
+                filteredLogs = filteredLogs.slice(0, parseInt(limit));
+            }
+
+            renderLogs();
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('logTableBody');
+
+            if (filteredLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #aaa; padding: 40px;">No logs found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredLogs.map(log => {
+                const timestamp = new Date(log.timestamp).toLocaleString();
+                const actionClass = getActionClass(log.action);
+                const roleClass = getRoleClass(log.role);
+
+                return `
+                    <tr>
+                        <td style="color: #aaa; font-size: 0.85rem;">${timestamp}</td>
+                        <td style="color: #00d4ff; font-weight: bold;">${log.username}</td>
+                        <td><span class="role-badge ${roleClass}">${log.role}</span></td>
+                        <td><span class="action-badge ${actionClass}">${log.action}</span></td>
+                        <td style="color: #ddd; font-size: 0.9rem;">${JSON.stringify(log.details).substring(0, 100)}</td>
+                        <td style="color: #888; font-size: 0.8rem;">${log.sessionId.substring(0, 20)}...</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getActionClass(action) {
+            if (action.includes('LOGIN')) return 'action-login';
+            if (action.includes('DENIED')) return 'action-denied';
+            if (action.includes('EXPORT')) return 'action-export';
+            return 'action-module';
+        }
+
+        function getRoleClass(role) {
+            return `role-${role}`;
+        }
+
+        function exportLogs(format) {
+            window.auditLogger.downloadLogs(format);
+            window.auditLogger.log('EXPORT_LOGS', { format: format, count: filteredLogs.length });
+            alert(`✅ Audit logs exported as ${format.toUpperCase()}`);
+        }
+
+        function clearAllLogs() {
+            if (confirm('⚠️ WARNING\n\nThis will permanently delete ALL audit logs.\n\nAre you sure?')) {
+                if (confirm('Final confirmation: Delete all logs?')) {
+                    window.auditLogger.clearLogs();
+                    refreshLogs();
+                    alert('✅ All audit logs have been cleared.');
+                }
+            }
+        }
+
+        // Initial load
+        refreshLogs();
+    </script>
+</body>
+
+</html>

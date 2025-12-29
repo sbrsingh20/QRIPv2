@@ -1,0 +1,455 @@
+}
+
+setContacts(contacts) {
+    this.contacts = contacts;
+}
+
+setMode(mode) {
+    this.mode = mode;
+    console.log(`Radar mode set to: ${mode}`);
+}
+
+draw() {
+    // Clear canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw radar rings
+    this.drawRadarRings();
+
+    // Draw crosshairs
+    this.drawCrosshairs();
+
+    // Draw track trails first (behind contacts)
+    if (this.showTrails) {
+        this.drawTrackTrails();
+    }
+
+    // Draw scan line
+    this.drawScanLine();
+
+    // Draw contacts
+    this.drawContacts();
+
+    // Draw quantum particles
+    this.drawQuantumParticles();
+
+    // Draw mode and range indicator
+    this.drawModeIndicator();
+
+    // Update scan angle (speed varies by mode)
+    const scanSpeed = this.mode === 'surveillance' ? 0.015 :
+        this.mode === 'tracking' ? 0.03 : 0.06;
+    this.scanAngle += scanSpeed;
+    if (this.scanAngle > Math.PI * 2) {
+        this.scanAngle = 0;
+    }
+}
+
+drawRadarRings() {
+    const maxRadius = Math.min(this.centerX, this.centerY) * 0.9;
+    const rings = 4;
+    const rangePerRing = this.maxRange / rings;
+
+    for (let i = 1; i <= rings; i++) {
+        const radius = (maxRadius / rings) * i;
+
+        // Ring circle
+        this.ctx.beginPath();
+        this.ctx.arc(this.centerX, this.centerY, radius, 0, Math.PI * 2);
+        this.ctx.strokeStyle = `rgba(0, 212, 255, ${0.3 - i * 0.05})`;
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+
+        // Distance labels
+        const rangeLabel = (i * rangePerRing).toFixed(0);
+        this.ctx.fillStyle = 'rgba(0, 212, 255, 0.5)';
+        this.ctx.font = '12px "Roboto Mono"';
+        this.ctx.fillText(`${rangeLabel}km`, this.centerX + 5, this.centerY - radius + 15);
+    }
+}
+
+drawCrosshairs() {
+    this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
+    this.ctx.lineWidth = 1;
+
+    // Vertical line
+    this.ctx.beginPath();
+    this.ctx.moveTo(this.centerX, 0);
+    this.ctx.lineTo(this.centerX, this.canvas.height);
+    this.ctx.stroke();
+
+    // Horizontal line
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, this.centerY);
+    this.ctx.lineTo(this.canvas.width, this.centerY);
+    this.ctx.stroke();
+
+    // Diagonal lines
+    const diag = Math.min(this.centerX, this.centerY) * 0.9;
+    const angles = [Math.PI / 4, 3 * Math.PI / 4, 5 * Math.PI / 4, 7 * Math.PI / 4];
+
+    angles.forEach(angle => {
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.centerX, this.centerY);
+        this.ctx.lineTo(
+            this.centerX + Math.cos(angle) * diag,
+            this.centerY + Math.sin(angle) * diag
+        );
+        this.ctx.stroke();
+    });
+
+    // Cardinal directions
+    this.ctx.fillStyle = 'rgba(0, 212, 255, 0.7)';
+    this.ctx.font = 'bold 16px "Orbitron"';
+    this.ctx.textAlign = 'center';
+
+    const labelDist = Math.min(this.centerX, this.centerY) * 0.95;
+    this.ctx.fillText('N', this.centerX, this.centerY - labelDist);
+    this.ctx.fillText('E', this.centerX + labelDist, this.centerY + 5);
+    this.ctx.fillText('S', this.centerX, this.centerY + labelDist);
+    this.ctx.fillText('W', this.centerX - labelDist, this.centerY + 5);
+}
+
+drawScanLine() {
+    const maxRadius = Math.min(this.centerX, this.centerY) * 0.9;
+
+    // Scanning beam
+    const gradient = this.ctx.createRadialGradient(
+        this.centerX, this.centerY, 0,
+        this.centerX, this.centerY, maxRadius
+    );
+    gradient.addColorStop(0, 'rgba(0, 255, 255, 0.3)');
+    gradient.addColorStop(0.5, 'rgba(0, 212, 255, 0.1)');
+    gradient.addColorStop(1, 'rgba(0, 212, 255, 0)');
+
+    this.ctx.save();
+    this.ctx.translate(this.centerX, this.centerY);
+    this.ctx.rotate(this.scanAngle);
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.arc(0, 0, maxRadius, -0.1, 0.1);
+    this.ctx.closePath();
+    this.ctx.fillStyle = gradient;
+    this.ctx.fill();
+
+    // Scan line
+    this.ctx.beginPath();
+    this.ctx.moveTo(0, 0);
+    this.ctx.lineTo(maxRadius, 0);
+    this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+
+    this.ctx.restore();
+}
+
+drawTrackTrails() {
+    const maxRadius = Math.min(this.centerX, this.centerY) * 0.9;
+
+    this.contacts.forEach(contact => {
+        if (!contact.trackHistory || contact.trackHistory.length < 2) return;
+
+        // Color based on IFF
+        let trailColor;
+        switch (contact.iffStatus) {
+            case 'hostile':
+                trailColor = 'rgba(255, 51, 102, 0.3)';
+                break;
+            case 'friendly':
+                trailColor = 'rgba(0, 255, 136, 0.3)';
+                break;
+            case 'civilian':
+                trailColor = 'rgba(0, 212, 255, 0.3)';
+                break;
+            default:
+                trailColor = 'rgba(255, 204, 0, 0.3)';
+        }
+
+        this.ctx.strokeStyle = trailColor;
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+
+        contact.trackHistory.forEach((pos, index) => {
+            const angle = (pos.bearing * Math.PI) / 180;
+            const normalizedDistance = pos.distance / this.maxRange; // 0 to 1
+            const radius = normalizedDistance * maxRadius;
+
+            const x = this.centerX + Math.cos(angle) * radius;
+            const y = this.centerY + Math.sin(angle) * radius;
+
+            if (index === 0) {
+                this.ctx.moveTo(x, y);
+            } else {
+                this.ctx.lineTo(x, y);
+            }
+        });
+
+        this.ctx.stroke();
+    });
+}
+
+drawContacts() {
+    const maxRadius = Math.min(this.centerX, this.centerY) * 0.9;
+
+    this.contacts.forEach(contact => {
+        // Convert contact position to radar coordinates
+        const angle = (contact.bearing * Math.PI) / 180;
+        const normalizedDistance = contact.distance / this.maxRange; // 0 to 1
+        const radius = normalizedDistance * maxRadius;
+
+        // Skip if out of range
+        if (contact.distance > this.maxRange) return;
+
+        const x = this.centerX + Math.cos(angle) * radius;
+        const y = this.centerY + Math.sin(angle) * radius;
+
+        // IFF-based color
+        let color, glowColor, shape;
+        switch (contact.iffStatus) {
+            case 'hostile':
+                color = contact.severity === 'critical' ? '#ff3366' :
+                    contact.severity === 'high' ? '#ff6633' :
+                        contact.severity === 'medium' ? '#ff9933' : '#ffcc00';
+                glowColor = `rgba(255, 51, 102, 0.8)`;
+                shape = 'triangle'; // Hostile = triangle
+                break;
+            case 'friendly':
+                color = '#00ff88';
+                glowColor = 'rgba(0, 255, 136, 0.8)';
+                shape = 'square'; // Friendly = square
+                break;
+            case 'civilian':
+                color = '#00d4ff';
+                glowColor = 'rgba(0, 212, 255, 0.8)';
+                shape = 'circle'; // Civilian = circle
+                break;
+            default: // unknown
+                color = '#ffcc00';
+                glowColor = 'rgba(255, 204, 0, 0.8)';
+                shape = 'diamond'; // Unknown = diamond
+        }
+
+        // Size based on RCS (radar cross section)
+        const baseSize = 3 + Math.log10(contact.rcs + 1) * 2;
+        const pulseSize = baseSize + Math.sin(Date.now() / 300 + parseInt(contact.id.split('-')[1])) * 1.5;
+
+        // Glow
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, pulseSize + 5, 0, Math.PI * 2);
+        this.ctx.fillStyle = glowColor;
+        this.ctx.globalAlpha = 0.3;
+        this.ctx.fill();
+        this.ctx.globalAlpha = 1;
+
+        // Draw shape based on IFF
+        this.ctx.fillStyle = color;
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = 1.5;
+
+        this.drawContactShape(x, y, pulseSize, shape);
+
+        // Label for high-priority contacts
+        if (contact.severity === 'critical' || contact.severity === 'high' || contact.iffStatus === 'unknown') {
+            this.ctx.fillStyle = color;
+            this.ctx.font = '10px "Roboto Mono"';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(contact.id, x, y - pulseSize - 8);
+
+            // Classification label
+            this.ctx.font = '8px "Roboto Mono"';
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+            this.ctx.fillText(contact.classData.name, x, y - pulseSize - 18);
+        }
+
+        // Velocity vector
+        if (this.showVelocityVectors && contact.speed > 50) {
+            this.drawVelocityVector(x, y, contact, color);
+        }
+
+        // ECM indicator
+        if (contact.ecmActive) {
+            this.drawECMIndicator(x, y, pulseSize);
+        }
+
+        // Quantum correlation for high-value targets
+        if (contact.quantumCorrelation > 0.9 && (contact.severity === 'critical' || contact.iffStatus === 'unknown')) {
+            this.drawQuantumCorrelation(x, y, color);
+        }
+    });
+}
+
+drawContactShape(x, y, size, shape) {
+    this.ctx.beginPath();
+
+    switch (shape) {
+        case 'triangle': // Hostile
+            this.ctx.moveTo(x, y - size);
+            this.ctx.lineTo(x + size, y + size);
+            this.ctx.lineTo(x - size, y + size);
+            this.ctx.closePath();
+            break;
+
+        case 'square': // Friendly
+            this.ctx.rect(x - size, y - size, size * 2, size * 2);
+            break;
+
+        case 'diamond': // Unknown
+            this.ctx.moveTo(x, y - size);
+            this.ctx.lineTo(x + size, y);
+            this.ctx.lineTo(x, y + size);
+            this.ctx.lineTo(x - size, y);
+            this.ctx.closePath();
+            break;
+
+        default: // circle for civilian
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
+    }
+
+    this.ctx.fill();
+    this.ctx.stroke();
+}
+
+drawVelocityVector(x, y, contact, color) {
+    const vectorLength = Math.min(contact.speed / 30, 30);
+    const headingAngle = (contact.heading * Math.PI) / 180;
+
+    const endX = x + Math.cos(headingAngle) * vectorLength;
+    const endY = y + Math.sin(headingAngle) * vectorLength;
+
+    this.ctx.strokeStyle = color;
+    this.ctx.lineWidth = 2;
+    this.ctx.globalAlpha = 0.6;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(x, y);
+    this.ctx.lineTo(endX, endY);
+    this.ctx.stroke();
+
+    // Arrowhead
+    const arrowSize = 4;
+    this.ctx.beginPath();
+    this.ctx.moveTo(endX, endY);
+    this.ctx.lineTo(
+        endX - arrowSize * Math.cos(headingAngle - Math.PI / 6),
+        endY - arrowSize * Math.sin(headingAngle - Math.PI / 6)
+    );
+    this.ctx.moveTo(endX, endY);
+    this.ctx.lineTo(
+        endX - arrowSize * Math.cos(headingAngle + Math.PI / 6),
+        endY - arrowSize * Math.sin(headingAngle + Math.PI / 6)
+    );
+    this.ctx.stroke();
+
+    this.ctx.globalAlpha = 1;
+}
+
+drawECMIndicator(x, y, size) {
+    // ECM jamming effect
+    const time = Date.now() / 100;
+    this.ctx.strokeStyle = '#ff00ff';
+    this.ctx.lineWidth = 2;
+    this.ctx.globalAlpha = 0.5 + Math.sin(time) * 0.3;
+
+    for (let i = 0; i < 3; i++) {
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, size + 10 + i * 5, 0, Math.PI * 2);
+        this.ctx.stroke();
+    }
+
+    this.ctx.globalAlpha = 1;
+}
+
+drawQuantumCorrelation(x, y, color) {
+    const particles = 4;
+    const orbitRadius = 15;
+    const time = Date.now() / 1000;
+
+    for (let i = 0; i < particles; i++) {
+        const angle = (Math.PI * 2 / particles) * i + time;
+        const px = x + Math.cos(angle) * orbitRadius;
+        const py = y + Math.sin(angle) * orbitRadius;
+
+        this.ctx.beginPath();
+        this.ctx.arc(px, py, 2, 0, Math.PI * 2);
+        this.ctx.fillStyle = color;
+        this.ctx.globalAlpha = 0.6;
+        this.ctx.fill();
+        this.ctx.globalAlpha = 1;
+
+        // Connection line
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(px, py);
+        this.ctx.strokeStyle = color;
+        this.ctx.globalAlpha = 0.2;
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+        this.ctx.globalAlpha = 1;
+    }
+}
+
+drawQuantumParticles() {
+    const particleCount = 20;
+    const time = Date.now() / 1000;
+
+    for (let i = 0; i < particleCount; i++) {
+        const angle = (Math.PI * 2 / particleCount) * i + time * 0.1;
+        const radius = Math.min(this.centerX, this.centerY) * (0.3 + Math.sin(time + i) * 0.3);
+        const x = this.centerX + Math.cos(angle) * radius;
+        const y = this.centerY + Math.sin(angle) * radius;
+
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, 1, 0, Math.PI * 2);
+        this.ctx.fillStyle = 'rgba(179, 102, 255, 0.3)';
+        this.ctx.fill();
+    }
+}
+
+drawModeIndicator() {
+    this.ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
+    this.ctx.font = 'bold 14px "Orbitron"';
+    this.ctx.textAlign = 'left';
+    this.ctx.fillText(`MODE: ${this.mode.toUpperCase()} | RANGE: ${this.maxRange}km`, 10, 20);
+}
+
+// New zoom functions with proper range control
+zoomIn() {
+    // Zoom in by reducing max range
+    if (this.maxRange > 1) {
+        this.maxRange = Math.max(0.5, this.maxRange / 1.5);
+        console.log(`Zoomed in to ${this.maxRange.toFixed(1)}km range`);
+    }
+}
+
+zoomOut() {
+    // Zoom out by increasing max range
+    if (this.maxRange < 10000) {
+        this.maxRange = Math.min(10000, this.maxRange * 1.5);
+        console.log(`Zoomed out to ${this.maxRange.toFixed(1)}km range`);
+    }
+}
+
+resetZoom() {
+    this.maxRange = 1000;
+    console.log(`Reset zoom to ${this.maxRange}km range`);
+}
+
+setRange(range) {
+    this.maxRange = Math.max(0.5, Math.min(10000, range));
+    console.log(`Range set to ${this.maxRange}km`);
+}
+
+toggleTrails() {
+    this.showTrails = !this.showTrails;
+}
+
+toggleVelocityVectors() {
+    this.showVelocityVectors = !this.showVelocityVectors;
+}
+}
+
+// Export for use in app.js
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = QuantumRadar;
+}

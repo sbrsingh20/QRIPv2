@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Radar Intelligence Platform</title>
+    <meta name="description"
+        content="Advanced threat tracking and mission planning system powered by quantum radar technology">
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+
+    <body>
+        <!-- SECURITY LOGIN OVERLAY -->
+        <div id="login-overlay"
+            style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+            <div
+                style="border: 2px solid #ffcc00; padding: 40px; max-width: 400px; width: 80%; background: rgba(20, 20, 20, 0.9); box-shadow: 0 0 20px rgba(255, 204, 0, 0.2); text-align: center;">
+                <div style="color: #ffcc00; font-size: 1.5rem; margin-bottom: 10px;">⚠️ UNAUTHORIZED ACCESS PROHIBITED
+                </div>
+                <div style="color: #aaa; margin-bottom: 20px; font-family: monospace;">DEPARTMENT OF DEFENSE // QRIP
+                    SECURE GATEWAY</div>
+
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="color: #00d4ff; display: block; margin-bottom: 5px;">USERNAME</label>
+                    <input type="text" id="loginUser"
+                        style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; padding: 10px; color: #fff;">
+                </div>
+
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="color: #00d4ff; display: block; margin-bottom: 5px;">PASSPHRASE</label>
+                    <input type="password" id="loginPass"
+                        style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; padding: 10px; color: #fff;">
+                </div>
+
+                <button id="loginBtn" class="btn btn-primary"
+                    style="width: 100%; border-color: #ffcc00; color: #ffcc00;">AUTHENTICATE</button>
+                <div id="loginMsg" style="margin-top: 15px; color: #ff3232; min-height: 20px; font-size: 0.9rem;"></div>
+                <div class="subtitle">Advanced Detection • IFF Classification • Real-Time Tracking v2.4 (MIL-STD)
+                </div>
+            </div>
+            <div class="header-status" style="display: flex; gap: 20px; font-family: monospace; font-size: 0.9rem;">
+                <div
+                    style="border: 1px solid #ffcc00; padding: 5px 10px; color: #ffcc00; background: rgba(255, 204, 0, 0.1);">
+                    DEFCON: <span style="font-weight: bold;">3</span>
+                </div>
+                <div
+                    style="border: 1px solid #00ff00; padding: 5px 10px; color: #00ff00; background: rgba(0, 255, 0, 0.1);">
+                    LINK-16: <span style="font-weight: bold; animation: blink 2s infinite;">SECURE</span>
+                </div>
+            </div>
+            </header>
+
+            <!-- Module Navigation Tabs -->
+            <nav class="module-nav">
+                <button class="nav-item active" data-view="intel-feed-view">
+                    <span class="icon">📡</span> Live Intelligence
+                </button>
+                <button class="nav-item" data-view="modules-view">
+                    <span class="icon">🔧</span> System Modules
+                </button>
+                <button class="nav-item" data-view="operational-view">
+                    <span class="icon">🎯</span> Operational Radar
+                </button>
+                <button class="nav-item" data-view="signal-view">
+                    <span class="icon">📈</span> Signal Intelligence
+                </button>
+                <button class="nav-item" data-view="mission-view">
+                    <span class="icon">♟️</span> Mission Planning
+                </button>
+                <button class="nav-item" data-view="calibration-view">
+                    <span class="icon">🔧</span> Calibration
+                </button>
+                <button class="nav-item" data-view="twin-view">
+                    <span class="icon">🏙️</span> Digital Twin
+                </button>
+                <button class="nav-item" data-view="fleet-view">
+                    <span class="icon">🌍</span> Fleet Manager
+                </button>
+                <button class="nav-item" data-view="analysis-view">
+                    <span class="icon">📋</span> Post-Analysis
+                </button>
+            </nav>
+
+            <!-- Main Dashboard Grid (Operational View) -->
+            <div id="operational-view" class="view-section">
+                <div class="dashboard-grid">
+                    <!-- Quantum Radar Display -->
+                    <div class="panel radar-panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Quantum Radar Display</h2>
+                            <span class="panel-status">ACTIVE</span>
+                        </div>
+
+                        <!-- Radar Mode Controls -->
+                        <div class="radar-mode-controls">
+                            <button class="mode-btn active" data-mode="surveillance">📡 Surveillance</button>
+                            <button class="mode-btn" data-mode="tracking">🎯 Tracking</button>
+                            <button class="mode-btn" data-mode="targeting">🔒 Targeting</button>
+                        </div>
+
+                        <!-- IFF Legend -->
+                        <div class="iff-legend">
+                            <div class="legend-item">
+                                <div class="legend-indicator hostile"></div>
+                                <span>Hostile (▲)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-indicator friendly"></div>
+                                <span>Friendly (■)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-indicator civilian"></div>
+                                <span>Civilian (●)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-indicator unknown"></div>
+                                <span>Unknown (◆)</span>
+                            </div>
+                        </div>
+
+                        <div class="radar-container">
+                            <canvas id="radarCanvas"></canvas>
+                        </div>
+                        <div class="radar-controls">
+                            <button class="btn" id="zoomIn">🔍 Zoom In</button>
+                            <button class="btn" id="zoomOut">🔍 Zoom Out</button>
+                            <button class="btn" id="resetZoom">↺ Reset</button>
+                            <button class="btn" id="toggleTrails">📍 Hide Trails</button>
+                            <button class="btn" id="toggleVectors">➡️ Hide Vectors</button>
+                            <button class="btn btn-primary" id="refreshContacts">🔄 Refresh Contacts</button>
+                        </div>
+                        <div class="radar-controls" style="margin-top: 0.5rem;">
+                            <span style="color: rgba(0, 212, 255, 0.7); margin-right: 0.5rem; font-weight: 600;">Quick
+                                Range:</span>
+                            <button class="btn range-preset-btn" id="rangeTactical">📍 Tactical (50km)</button>
+                            <button class="btn range-preset-btn" id="rangeRegional">🌐 Regional (500km)</button>
+                            <button class="btn range-preset-btn" id="rangeStrategic">🌍 Strategic (2000km)</button>
+                        </div>
+                    </div>
+
+                    <!--Active Contacts Panel -->
+                    <div class="panel threats-panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Active Contacts</h2>
+                            <span class="panel-status">TRACKING</span>
+                        </div>
+                        <div class="threat-list" id="contactsList">
+                            <!-- Contacts will be populated by JavaScript -->
+                            <div class="text-center" style="padding: 20px; color: rgba(0, 212, 255, 0.5);">
+                                <div class="loading"></div>
+                                <p style="margin-top: 10px;">Loading contacts...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Monitoring Dashboard -->
+                    <div class="panel monitoring-panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">System Monitoring</h2>
+                            <span class="panel-status">OPERATIONAL</span>
+                        </div>
+                        <div class="metrics-grid" id="metricsGrid">
+                            <!-- Metrics will be populated by JavaScript -->
+                            <div class="metric-card">
+                                <div class="metric-label">Quantum Correlation</div>
+                                <div class="metric-value">--<span class="metric-unit">%</span></div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Active Contacts</div>
+                                <div class="metric-value">--</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Sensor Arrays</div>
+                                <div class="metric-value">--</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">System Uptime</div>
+                                <div class="metric-value">--:--:--</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <!-- Inventory Management -->
+                    <div class="panel inventory-panel">
+                        <div class="panel-header">
+                            <h2 class="panel-title">Resource Inventory</h2>
+                            <span class="panel-status">READY</span>
+                        </div>
+                        <div class="inventory-list" id="inventoryList">
+                            <!-- Inventory will be populated by JavaScript -->
+                            <div class="text-center" style="padding: 20px; color: rgba(0, 212, 255, 0.5);">
+                                <div class="loading"></div>
+                                <p style="margin-top: 10px;">Loading inventory...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Distributed Radar Network Panel -->
+                    <div class="panel network-panel" style="grid-column: 1 / -1;">
+                        <div class="panel-header">
+                            <h2 class="panel-title">🌐 Distributed Radar Network</h2>
+                            <span class="panel-status"
+                                style="background: rgba(179, 102, 255, 0.2); border-color: #b366ff; color: #b366ff;">ML/QML
+                                ACTIVE</span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+                            <!-- Node Grid -->
+                            <div id="nodeGrid"></div>
+
+                            <!-- Stats Panel -->
+                            <div>
+                                <div id="coverageMap" style="margin-bottom: 1.5rem;"></div>
+                                <div id="fusionStats" style="margin-bottom: 1.5rem;"></div>
+                                <div id="mlStats"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- Close dashboard-grid -->
+            </div> <!-- Close operational-view -->
+
+            <!-- VIEW: Signal Intelligence -->
+            <div id="signal-view" class="view-section" style="display:none;">
+                <div class="panel" style="min-height: 80vh;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Signal Intelligence (SIGINT) & Electronic Warfare</h2>
+                        <span class="panel-status"
+                            style="background: rgba(255, 50, 50, 0.2); border-color: #ff3232; color: #ff3232;">PASSIVE
+                            MODE</span>
+                    </div>
+
+                    <div class="sigint-dashboard"
+                        style="padding: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; height: 100%;">
+
+                        <!-- Left: Visualizations -->
+                        <div class="sig-viz-container" style="display: flex; flex-direction: column; gap: 20px;">
+                            <!-- New Controls -->
+                            <div class="sig-controls" style="display: flex; gap: 20px; margin-bottom: 10px;">
+                                <div class="control-group" style="flex: 1;">
+                                    <label>Frequency Band</label>
+                                    <select class="cyber-select" id="sigBand">
+                                        <option>Generic (All)</option>
+                                        <option>HF (3 - 30 MHz)</option>
+                                        <option>VHF (30 - 300 MHz)</option>
+                                        <option>UHF (300 MHz - 3 GHz)</option>
+                                        <option>L-Band (1 - 2 GHz)</option>
+                                        <option>S-Band (2 - 4 GHz)</option>
+                                        <option>X-Band (8 - 12 GHz)</option>
+                                    </select>
+                                </div>
+                                <div class="control-group" style="flex: 1;">
+                                    <label>Operation Mode</label>
+                                    <select class="cyber-select" id="sigMode">
+                                        <option>Passive (Listening)</option>
+                                        <option>Active Scan (Detection)</option>
+                                        <option>Electronic Attack (Jamming)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="spectrum-analyzer panel-inner"
+                                style="border: 1px solid rgba(0,212,255,0.2); padding: 10px; border-radius: 4px;">
+                                <h3>RF Spectrum Analyzer</h3>
+                                <canvas id="spectrumCanvas"
+                                    style="width: 100%; height: 200px; background: rgba(0,0,0,0.5);"></canvas>
+                            </div>
+                            <div class="waterfall-display panel-inner"
+                                style="border: 1px solid rgba(0,212,255,0.2); padding: 10px; border-radius: 4px;">
+                                <h3>Waterfall Display</h3>
+                                <canvas id="waterfallCanvas"
+                                    style="width: 100%; height: 200px; background: rgba(0,0,0,0.5);"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Right: Emitter Classification -->
+                        <div class="emitter-classification panel-inner"
+                            style="border: 1px solid rgba(0,212,255,0.2); padding: 10px; border-radius: 4px;">
+                            <h3>Detected Emitters</h3>
+                            <div id="emitterList" class="scrolling-list"
+                                style="margin-top: 10px; height: 400px; overflow-y: auto;">
+                                <!-- Populated by JS -->
+                                <div class="loading-text">Listening for signals...</div>
+                            </div>
+                            ⚠️ JAMMING DETECTED
+                        </div>
+
+                        <div class="signal-analysis"
+                            style="margin-top: 20px; border-top: 1px solid rgba(0,212,255,0.2); padding-top: 10px;">
+                            <h4>Signal Analysis</h4>
+                            <p id="sigAnalysisText" style="font-size: 0.85rem; color: #aaa;">Listening...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <!-- VIEW: Mission Planning -->
+        <div id="mission-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Mission Planning & Resource Allocation</h2>
+                    <span class="panel-status"
+                        style="background: rgba(179, 102, 255, 0.2); border-color: #b366ff; color: #b366ff;">STRATEGIC
+                        MODE</span>
+                </div>
+                <div class="mission-dashboard"
+                    style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+
+                    <!-- Left Col: Strategic Map & Threats -->
+                    <div class="strategic-col">
+                        <h3>Active Threats (Strategic)</h3>
+                        <div id="strategicThreatList" class="threat-list"
+                            style="max-height: 400px; overflow-y: auto; margin-top: 10px; border: 1px solid rgba(0,212,255,0.2); border-radius: 4px;">
+                            <!-- Populated by JS -->
+                            <div style="padding: 10px;">Select a threat from the list to plan mission.</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Col: Mission Details -->
+                    <div class="mission-col">
+                        <div class="mission-selector">
+                            <div class="mission-selector">
+                                <h3
+                                    style="margin-bottom: 10px; border-bottom: 1px solid rgba(0,212,255,0.2); padding-bottom: 5px;">
+                                    Tactical Configuration</h3>
+
+                                <div class="control-group">
+                                    <label>Mission Type</label>
+                                    <select class="cyber-select" id="missionType">
+                                        <option>Combat Air Patrol (CAP)</option>
+                                        <option>Suppression of Enemy Air Defenses (SEAD)</option>
+                                        <option>Anti-Ballistic Missile (ABM)</option>
+                                        <option>Electronic Warfare Support (ES)</option>
+                                        <option>Strategic Reconnaissance (ISR)</option>
+                                    </select>
+                                </div>
+
+                                <div class="control-group">
+                                    <label>Asset Allocation</label>
+                                    <select class="cyber-select" id="missionAsset">
+                                        <option>F-35A Lightning II (4-Ship)</option>
+                                        <option>F-22 Raptor (2-Ship)</option>
+                                        <option>MQ-9 Reaper (UAV)</option>
+                                        <option>Aegis Ashore Battery</option>
+                                        <option>Patriot PAC-3 MSE</option>
+                                        <option>EA-18G Growler (Jamming Support)</option>
+                                    </select>
+                                </div>
+
+                                <div class="control-group">
+                                    <label>Rules of Engagement (ROE)</label>
+                                    <select class="cyber-select" id="missionROE">
+                                        <option>ROE-1: Visual ID Required</option>
+                                        <option>ROE-2: Self-Defense Only</option>
+                                        <option>ROE-3: Weapons Free (Designated Zones)</option>
+                                        <option>ROE-4: Unrestricted Engagement</option>
+                                    </select>
+                                </div>
+
+                                <div class="mission-options" style="margin-top: 20px;">
+                                    <button class="btn btn-primary" onclick="quantumRadarApp.missions.generatePlan()">
+                                        📝 Generate Tactical Brief
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="missionResult"
+                            style="margin-top: 20px; border-top: 1px solid rgba(0,212,255,0.2); padding-top: 10px;">
+                            <!-- Mission plan output -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: Calibration -->
+        <div id="calibration-view" class="view-section" style="display:none;">
+            <div class="panel" style="height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Advanced Calibration Suite</h2>
+                </div>
+                <div id="calibrationContent"></div>
+            </div>
+        </div>
+
+        <!-- VIEW: Digital Twin -->
+        <div id="twin-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Digital Twin Simulation & Prediction</h2>
+                    <span class="panel-status" style="background: #00d4ff; color: #000;">SIMULATION MODE</span>
+                </div>
+
+                <div class="twin-dashboard"
+                    style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; height: 100%;">
+
+                    <!-- Left: Premium Configuration Panel -->
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- Simulation Parameters Card -->
+                        <div
+                            style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 10, 20, 0.95)); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 12px; padding: 25px; box-shadow: 0 8px 32px rgba(0, 212, 255, 0.15);">
+                            <h3
+                                style="color: #00d4ff; font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; font-family: 'Orbitron', sans-serif;">
+                                ⚙️ Simulation Parameters</h3>
+
+                            <!-- Terrain Model -->
+                            <div style="margin-bottom: 18px;">
+                                <label
+                                    style="display: block; color: #00d4ff; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">🏔️
+                                    Terrain Model</label>
+                                <select id="twinTerrain"
+                                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(0, 212, 255, 0.4); color: #fff; border-radius: 8px; font-size: 0.95rem; cursor: pointer;">
+                                    <option>Urban Canyon</option>
+                                    <option>Mountainous Region</option>
+                                    <option>Coastal Plains</option>
+                                </select>
+                            </div>
+
+                            <!-- Radar Elevation -->
+                            <div style="margin-bottom: 18px;">
+                                <label
+                                    style="display: block; color: #00ff88; font-weight: 600; margin-bottom: 10px; font-size: 0.9rem;">📐
+                                    Radar Elevation: <span id="elevationValue" style="color: #fff;">1500m</span></label>
+                                <input type="range" id="twinElevation" min="0" max="5000" value="1500"
+                                    oninput="document.getElementById('elevationValue').textContent=this.value+'m'"
+                                    style="width: 100%; height: 6px; background: linear-gradient(90deg, rgba(0, 255, 136, 0.3), rgba(0, 212, 255, 0.3)); border-radius: 4px; cursor: pointer;">
+                            </div>
+
+                            <!-- Sky Condition -->
+                            <div style="margin-bottom: 18px;">
+                                <label
+                                    style="display: block; color: #ffcc00; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">☁️
+                                    Sky Condition</label>
+                                <select id="twinSky"
+                                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 204, 0, 0.4); color: #fff; border-radius: 8px; font-size: 0.95rem; cursor: pointer;">
+                                    <option>Clear</option>
+                                    <option>Scattered Clouds</option>
+                                    <option>Overcast</option>
+                                </select>
+                            </div>
+
+                            <!-- Precipitation -->
+                            <div style="margin-bottom: 20px;">
+                                <label
+                                    style="display: block; color: #ff66ff; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">🌧️
+                                    Precipitation</label>
+                                <select id="twinPrecip"
+                                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 102, 255, 0.4); color: #fff; border-radius: 8px; font-size: 0.95rem; cursor: pointer;">
+                                    <option>None</option>
+                                    <option>Light Drizzle</option>
+                                    <option>Heavy Rain</option>
+                                    <option>Thunderstorm</option>
+                                    <option>Snow / Ice</option>
+                                </select>
+                            </div>
+
+                            <!-- Run Button -->
+                            <button onclick="quantumRadarApp.digitalTwin.runSimulation()"
+                                style="width: 100%; padding: 16px; background: linear-gradient(135deg, #00d4ff, #00ff88); border: none; color: #000; font-weight: 700; font-size: 1rem; border-radius: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4); font-family: 'Orbitron', sans-serif;">🚀
+                                RUN SIMULATION & AI BENCHMARK</button>
+
+                            <div class="simulation-results"
+                                style="margin-top: 20px; border-top: 1px solid rgba(0,212,255,0.2); padding-top: 20px;">
+                                <h4>Predicted Performance</h4>
+                                <div class="metric-row">Detection Prob: <span id="simProb"
+                                        style="color: #00ff00;">--%</span>
+                                </div>
+                                <div class="metric-row">Blind Spots: <span id="simBlind"
+                                        style="color: #ff3232;">--%</span>
+                                </div>
+                                <div class="metric-row">Max Range: <span id="simRange" style="color: #00d4ff;">--
+                                        km</span>
+                                </div>
+
+                                <h4 style="margin-top: 20px;">AI Model Benchmark (Accuracy)</h4>
+                                <div id="aiBenchmarkResults"
+                                    style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 5px;">
+                                    <div style="display: flex; justify-content: space-between;"><span>Random
+                                            Forest:</span>
+                                        <span id="accRF" style="color: #aaa;">--%</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;"><span>CNN (Deep
+                                            Learning):</span> <span id="accCNN" style="color: #aaa;">--%</span></div>
+                                    <div style="display: flex; justify-content: space-between;"><span>Quantum
+                                            SVM:</span>
+                                        <span id="accQSVM" style="color: #00ff00;">--%</span>
+                                    </div>
+                                    <div style="margin-top: 10px; color: var(--quantum-blue); font-weight: bold;">
+                                        RECOMMENDED: <span id="modelRec">--</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Visualizer -->
+                        <div class="twin-visualizer"
+                            style="border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; position: relative;">
+                            <canvas id="twinCanvas" style="width: 100%; height: 100%; background: #000;"></canvas>
+                            <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.8rem; color: #666;">
+                                Use
+                                mouse to rotate view (Simulated)</div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: Fleet Manager -->
+            <div id="fleet-view" class="view-section" style="display:none;">
+                <div class="panel" style="min-height: 80vh;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Global Fleet Management</h2>
+                        <span class="panel-status">NETWORK ONLINE</span>
+                    </div>
+
+                    <div class="fleet-dashboard"
+                        style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; height: 100%;">
+                        <!-- Left: Map -->
+                        <div class="fleet-map-container"
+                            style="position: relative; border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; overflow: hidden; height: 600px;">
+                            <canvas id="fleetMapCanvas"
+                                style="width: 100%; height: 100%; background: #050a14;"></canvas>
+                            <div class="map-overlay"
+                                style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; pointer-events: none;">
+                                <div>Active Nodes: <span id="activeNodesCount" style="color: #00ff00;">0</span></div>
+                                <div>Critical Alerts: <span id="criticalAlertsCount" style="color: #ff3232;">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: List -->
+                        <div class="fleet-list-container" style="display: flex; flex-direction: column;">
+                            <h3>Deployed Systems</h3>
+                            <div id="radarFleetList" class="scrolling-list"
+                                style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1); margin-top: 10px;">
+                                <!-- Populated by JS -->
+                                <div class="loading-text">Connecting to Fleet Command...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: Post Analysis -->
+            <div id="analysis-view" class="view-section" style="display:none;">
+                <div class="panel" style="min-height: 80vh;">
+                    <div class="panel-header">
+                        <h2 class="panel-title">Mission Replay & Forensic Analysis</h2>
+                        <span class="panel-status">ARCHIVE MODE</span>
+                    </div>
+
+                    <div class="analysis-dashboard"
+                        style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; padding: 20px; height: 100%;">
+
+                        <!-- Left: Log List -->
+                        <div class="log-list-container" style="display: flex; flex-direction: column;">
+                            <h3>Mission Logs</h3>
+                            <div class="control-group" style="margin-bottom: 10px;">
+                                <input type="text" class="cyber-input" placeholder="Search Logs..."
+                                    style="width: 100%;">
+                            </div>
+                            <div id="missionLogList" class="scrolling-list"
+                                style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1);">
+                                <!-- Populated by JS -->
+                                <div class="loading-text">Retrieving encrypted logs...</div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Replay Player -->
+                        <div class="replay-container" style="display: flex; flex-direction: column; gap: 15px;">
+
+                            <!-- Mini Radar Replay -->
+                            <div class="replay-screen"
+                                style="flex-grow: 1; border: 1px solid rgba(0,212,255,0.2); background: #000; position: relative;">
+                                <canvas id="replayCanvas" style="width: 100%; height: 100%;"></canvas>
+                                <div class="replay-overlay"
+                                    style="position: absolute; top: 10px; right: 10px; color: #00ff00; font-family: monospace;">
+                                    REPLAY SPEED: <span id="replaySpeed">1x</span>
+                                </div>
+                            </div>
+
+                            <!-- Controls -->
+                            <div class="replay-controls"
+                                style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 4px;">
+                                <div class="timeline-row"
+                                    style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                                    <span id="replayTime">00:00:00</span>
+                                    <input type="range" class="cyber-range" id="replayTimeline" value="0" min="0"
+                                        max="100" style="flex-grow: 1;">
+                                    <span>-01:30:00</span>
+                                </div>
+                                <div class="button-row" style="display: flex; justify-content: center; gap: 10px;">
+                                    <button class="btn" style="min-width: 40px;">⏮️</button>
+                                    <button class="btn btn-primary" style="min-width: 60px;">▶ PLAY</button>
+                                    <button class="btn" style="min-width: 40px;">⏸️</button>
+                                    <button class="btn" style="min-width: 40px;">⏭️</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- Close app-container -->
+
+        <!-- =============================================
+             SIGNAL INTELLIGENCE VIEW - ADVANCED SIGINT
+             ============================================= -->
+        <div id="signal-view" class="view-section">
+            <div class="panel" style="margin: 20px;">
+                <div class="panel-header">
+                    <h2 class="panel-title">📈 Signal Intelligence & Spectrum Analysis</h2>
+                    <span class="panel-status pulse"
+                        style="background: rgba(255, 102, 255, 0.2); border-color: #ff66ff; color: #ff66ff;">SIGINT
+                        ACTIVE</span>
+                </div>
+
+                <!-- Main SIGINT Grid -->
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px;">
+
+                    <!-- Left Column: Spectrum & Waterfall -->
+                    <div>
+                        <!-- Spectrum Analyzer -->
+                        <div
+                            style="background: linear-gradient(135deg, rgba(255, 102, 255, 0.05), rgba(0, 10, 20, 0.9)); border: 1px solid rgba(255, 102, 255, 0.4); border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(255, 102, 255, 0.1);">
+                            <h3 style="color: #ff66ff; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">🌊
+                                Real-Time Spectrum Analyzer</h3>
+                            <div
+                                style="position: relative; height: 300px; background: #000; border: 2px solid rgba(255, 102, 255, 0.3); border-radius: 8px; overflow: hidden;">
+                                <canvas id="spectrumCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+                                <div
+                                    style="position: absolute; top: 10px; left: 10px; font-size: 0.75rem; color: rgba(255, 102, 255, 0.8); font-family: 'Orbitron', sans-serif; text-shadow: 0 0 10px rgba(255, 102, 255, 0.5);">
+                                    FREQUENCY DOMAIN ANALYSIS • FFT SIZE: 2048 • WINDOW: BLACKMAN-HARRIS
+                                </div>
+                                <div
+                                    style="position: absolute; bottom: 10px; right: 10px; padding: 5px 10px; background: rgba(255, 102, 255, 0.2); border-radius: 4px; font-size: 0.75rem; color: #ff66ff;">
+                                    <span style="animation: pulse 2s infinite;">● REC</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                                <button class="btn"
+                                    style="flex: 1; background: linear-gradient(135deg, rgba(255, 102, 255, 0.2), rgba(255, 102, 255, 0.1)); border-color: #ff66ff; color: #ff66ff;">📊
+                                    Auto Scale</button>
+                                <button class="btn"
+                                    style="flex: 1; background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1)); border-color: #00d4ff; color: #00d4ff;">🔄
+                                    Reset View</button>
+                                <button class="btn-primary"
+                                    style="flex: 1; background: linear-gradient(135deg, #ff66ff, #cc00ff);">📸
+                                    Capture</button>
+                            </div>
+                        </div>
+
+                        <!-- Waterfall Display -->
+                        <div
+                            style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 10, 20, 0.9)); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 10px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);">
+                            <h3 style="color: #00d4ff; margin-bottom: 15px; font-size: 1.2rem; font-weight: 700;">💧
+                                Waterfall Display (Time-Frequency)</h3>
+                            <div
+                                style="position: relative; height: 250px; background: #000; border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 8px; overflow: hidden;">
+                                <canvas id="waterfallCanvas"
+                                    style="width: 100%; height: 100%; display: block;"></canvas>
+                                <div
+                                    style="position: absolute; bottom: 10px; right: 10px; font-size: 0.7rem; color: rgba(0, 212, 255, 0.7); font-family: 'Roboto Mono', monospace;">
+                                    SCROLL RATE: 10Hz • WINDOW: 30s • RESOLUTION: 10kHz
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Analysis Panels -->
+                    <div>
+                        <!-- Frequency Bands Status -->
+                        <div
+                            style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 10, 20, 0.9)); border: 1px solid rgba(0, 255, 136, 0.4); border-radius: 10px; padding: 18px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(0, 255, 136, 0.1);">
+                            <h3 style="color: #00ff88; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600;">📡
+                                Monitored Frequency Bands</h3>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div
+                                    style="padding: 12px; background: linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05)); border-left: 4px solid #00ff88; border-radius: 6px; transition: all 0.3s ease;">
+                                    <div
+                                        style="font-weight: 700; color: #00ff88; margin-bottom: 6px; font-size: 0.95rem;">
+                                        VHF (30-300 MHz)</div>
+                                    <div
+                                        style="font-size: 0.8rem; color: #bbb; display: flex; justify-content: space-between;">
+                                        <span>Activity: <strong style="color: #00ff88;">NORMAL</strong></span>
+                                        <span>Signals: <strong>45</strong></span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="padding: 12px; background: linear-gradient(90deg, rgba(255, 204, 0, 0.15), rgba(255, 204, 0, 0.05)); border-left: 4px solid #ffcc00; border-radius: 6px;">
+                                    <div
+                                        style="font-weight: 700; color: #ffcc00; margin-bottom: 6px; font-size: 0.95rem;">
+                                        UHF (300-3000 MHz)</div>
+                                    <div
+                                        style="font-size: 0.8rem; color: #bbb; display: flex; justify-content: space-between;">
+                                        <span>Activity: <strong style="color: #ffcc00;">ELEVATED</strong></span>
+                                        <span>Signals: <strong>127</strong></span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="padding: 12px; background: linear-gradient(90deg, rgba(255, 102, 255, 0.15), rgba(255, 102, 255, 0.05)); border-left: 4px solid #ff66ff; border-radius: 6px;">
+                                    <div
+                                        style="font-weight: 700; color: #ff66ff; margin-bottom: 6px; font-size: 0.95rem;">
+                                        SHF (3-30 GHz)</div>
+                                    <div
+                                        style="font-size: 0.8rem; color: #bbb; display: flex; justify-content: space-between;">
+                                        <span>Activity: <strong style="color: #ff66ff;">HIGH</strong></span>
+                                        <span>Signals: <strong>89</strong></span>
+                                    </div>
+                                </div>
+                                <div
+                                    style="padding: 12px; background: linear-gradient(90deg, rgba(255, 51, 102, 0.15), rgba(255, 51, 102, 0.05)); border-left: 4px solid #ff3366; border-radius:6px;">
+                                    <div
+                                        style="font-weight: 700; color: #ff3366; margin-bottom: 6px; font-size: 0.95rem;">
+                                        EHF (30-300 GHz)</div>
+                                    <div
+                                        style="font-size: 0.8rem; color: #bbb; display: flex; justify-content: space-between;">
+                                        <span>Activity: <strong
+                                                style="color: #ff3366; animation: blink 1s infinite;">CRITICAL</strong></span>
+                                        <span>Signals: <strong>23</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Signal Classification -->
+                        <div
+                            style="background: linear-gradient(135deg, rgba(179, 102, 255, 0.05), rgba(0, 10, 20, 0.9)); border: 1px solid rgba(179, 102, 255, 0.4); border-radius: 10px; padding: 18px; box-shadow: 0 8px 32px rgba(179, 102, 255, 0.1);">
+                            <h3 style="color: #b366ff; margin-bottom: 15px; font-size: 1.1rem; font-weight: 600;">🤖 AI
+                                Signal Classifier</h3>
+                            <div style="margin-bottom: 18px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(179, 102, 255, 0.05); border-radius: 4px;">
+                                    <span style="color: #bbb; font-size: 0.85rem;">Classification Accuracy:</span>
+                                    <span style="color: #00ff88; font-weight: 700; font-size: 0.9rem;">97.3%</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(179, 102, 255, 0.05); border-radius: 4px;">
+                                    <span style="color: #bbb; font-size: 0.85rem;">Signals Classified:</span>
+                                    <span style="color: #00d4ff; font-weight: 600; font-size: 0.9rem;">284 /284</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255, 204, 0, 0.05); border-radius: 4px; border: 1px solid rgba(255, 204, 0, 0.2);">
+                                    <span style="color: #bbb; font-size: 0.85rem;">Anomalies Detected:</span>
+                                    <span style="color: #ffcc00; font-weight: 700; font-size: 0.9rem;">⚠ 7</span>
+                                </div>
+                                <div
+                                    style="display: flex; justify-content: space-between; padding: 8px; background: rgba(255, 51, 102, 0.05); border-radius: 4px; border: 1px solid rgba(255, 51, 102, 0.2);">
+                                    <span style="color: #bbb; font-size: 0.85rem;">Threats Identified:</span>
+                                    <span
+                                        style="color: #ff3366; font-weight: 700; font-size: 0.9rem; animation: blink 2s infinite;">🔴
+                                        3</span>
+                                </div>
+                            </div>
+                            <div
+                                style="padding: 15px; background: linear-gradient(135deg, rgba(179, 102, 255, 0.2), rgba(179, 102, 255, 0.05)); border-radius: 8px; border: 1px solid rgba(179, 102, 255, 0.3);">
+                                <div
+                                    style="font-size: 0.9rem; color: #b366ff; font-weight: 700; margin-bottom: 10px; font-family: 'Orbitron', sans-serif;">
+                                    ⚛ Active AI Models:</div>
+                                <div style="font-size: 0.8rem; color: #ccc; line-height: 2;">
+                                    <div>✓ Deep Neural Network (CNN)</div>
+                                    <div>✓ LSTM Time-Series Analyzer</div>
+                                    <div>✓ Transformer: Signal Fingerprinting</div>
+                                    <div>✓ Quantum Feature Extraction</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detected Signals Table (Full Width) -->
+                <div
+                    style="margin-top: 30px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.05), rgba(0, 10, 20, 0.9)); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 10px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 212, 255, 0.1);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #00d4ff; font-size: 1.2rem; font-weight: 700; margin: 0;">🔍 Detected Signals
+                            (Real-Time Monitoring)</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn"
+                                style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.1)); border-color: #00d4ff; color: #00d4ff;">🗂️
+                                Filter</button>
+                            <button class="btn"
+                                style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 255, 136, 0.1)); border-color: #00ff88; color: #00ff88;">📥
+                                Export CSV</button>
+                        </div>
+                    </div>
+                    <div id="signalsList"
+                        style="max-height: 350px; overflow-y: auto; border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 6px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead
+                                style="position: sticky; top: 0; background: linear-gradient(135deg, rgba(0, 40, 60, 0.98), rgba(0, 20, 40, 0.98)); z-index: 2; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);">
+                                <tr style="border-bottom: 2px solid rgba(0, 212, 255, 0.4);">
+                                    <th
+                                        style="padding: 12px; text-align: left; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        SIGNAL ID</th>
+                                    <th
+                                        style="padding: 12px; text-align: left; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        FREQUENCY</th>
+                                    <th
+                                        style="padding: 12px; text-align: left; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        TYPE</th>
+                                    <th
+                                        style="padding: 12px; text-align: left; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        STRENGTH (dBm)</th>
+                                    <th
+                                        style="padding: 12px; text-align: left; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        CLASSIFICATION</th>
+                                    <th
+                                        style="padding: 12px; text-align: center; color: #00d4ff; font-size: 0.85rem; font-weight: 700;">
+                                        STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="signalsTableBody">
+                                <tr>
+                                    <td colspan="6"
+                                        style="text-align: center; padding: 60px; color: rgba(0, 212, 255, 0.5);">
+                                        <div class="loading" style="margin: 0 auto 15px;"></div>
+                                        <div style="font-size: 0.95rem;">Initializing signal detection array...</div>
+                                        <div
+                                            style="font-size: 0.8rem; color: rgba(0, 212, 255, 0.3); margin-top: 10px;">
+                                            Scanning electromagnetic spectrum</div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LIVE INTELLIGENCE FEED VIEW -->
+        <div id="intel-feed-view" class="view-section active">
+            <div class="panel" style="margin: 20px; min-height: 85vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">📡 Live Intelligence Feed</h2>
+                    <span class="panel-status pulse">STREAMING</span>
+                </div>
+                <div id="intelFeedList"
+                    style="padding: 20px; display: flex; flex-direction: column; gap: 10px; max-height: 75vh; overflow-y: auto;">
+                    <!-- Items injected by notifications.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SYSTEM MODULES DASHBOARD VIEW -->
+        <div id="modules-view" class="view-section">
+            <div class="panel" style="margin: 20px;">
+                <div class="panel-header">
+                    <h2 class="panel-title">🔧 System Modules (28-Module Architecture)</h2>
+                    <span class="panel-status">OPERATIONAL</span>
+                </div>
+                <div
+                    style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px;">
+
+                    <!-- Layer A: Quantum Radar Core -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #00d4ff; border-bottom: 2px solid #00d4ff; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer A: Quantum Radar Core</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 1. QRIP Core Radar Engine</div>
+                        <div class="module-item"><span class="status-dot active"></span> 2. Quantum Illumination Sim
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 3. Classical DSP Engine</div>
+                        <div class="module-item"><span class="status-dot active"></span> 4. Network Fusion Engine</div>
+                    </div>
+
+                    <!-- Layer B: Threat Intelligence -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #ffcc00; border-bottom: 2px solid #ffcc00; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer B: Threat Intelligence</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 5. AI Threat Cognition</div>
+                        <div class="module-item"><span class="status-dot active"></span> 6. Micro-Doppler Analyzer</div>
+                        <div class="module-item"><span class="status-dot active"></span> 7. Swarm Prediction Engine
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 8. Hypersonic Predictor</div>
+                    </div>
+
+                    <!-- Layer EW: Electronic Warfare -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #ff3366; border-bottom: 2px solid #ff3366; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer EW: Electronic Warfare</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 9. Jammer Detection Engine
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 10. Anti-DRFM Engine</div>
+                        <div class="module-item"><span class="status-dot active"></span> 11. Noise Floor Detector</div>
+                    </div>
+
+                    <!-- Layer D: Automated Decision -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #00ff88; border-bottom: 2px solid #00ff88; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer D: Auto-Decision (AIDE)</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 12. AIDE (Interceptor Engine)
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 13. Countermeasure Assignment
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 14. Priority Ranking Engine
+                        </div>
+                    </div>
+
+                    <!-- Layer H: Situational Awareness -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #9d4edd; border-bottom: 2px solid #9d4edd; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer H: Situational Awareness</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 15. 3D Radar Hologram</div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 16. Geospatial Intel Layer
+                        </div>
+                        <div class="module-item"><span class="status-dot active"></span> 17. Multi-Track Visualization
+                        </div>
+                    </div>
+
+                    <!-- Layer C: Simulation & Twin -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #06ffa5; border-bottom: 2px solid #06ffa5; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer C: Simulation & Digital Twin</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 18. Radar Digital Twin</div>
+                        <div class="module-item"><span class="status-dot active"></span> 19. Scenario Simulator</div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 20. Quantum Sandbox</div>
+                    </div>
+
+                    <!-- Layer I: Cloud/Edge -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #f72585; border-bottom: 2px solid #f72585; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer I: Cloud & Edge</h3>
+                        <div class="module-item"><span class="status-dot simulated"></span> 21. Edge Compute Stack</div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 22. Defence Cloud
+                            Orchestrator</div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 23. Secure Telemetry (PQC)
+                        </div>
+                    </div>
+
+                    <!-- Layer E: Storage/Forensics -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #4cc9f0; border-bottom: 2px solid #4cc9f0; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer E: Storage & Forensics</h3>
+                        <div class="module-item"><span class="status-dot simulated"></span> 24. Forensic Reconstruction
+                        </div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 25. Log Compression Engine
+                        </div>
+                        <div class="module-item"><span class="status-dot simulated"></span> 26. Threat Archive</div>
+                    </div>
+
+                    <!-- Layer K: C2 -->
+                    <div class="module-layer">
+                        <h3
+                            style="color: #ffd60a; border-bottom: 2px solid #ffd60a; padding-bottom: 5px; margin-bottom: 15px;">
+                            Layer K: Command & Control</h3>
+                        <div class="module-item"><span class="status-dot active"></span> 27. Mission Planner</div>
+                        <div class="module-item"><span class="status-dot active"></span> 28. Command OS (UI)</div>
+                    </div>
+
+                </div>
+                <div
+                    style="padding: 20px; border-top: 1px solid rgba(0, 212, 255, 0.2); margin-top: 20px; display: flex; gap: 30px; justify-content: center;">
+                    <div><span class="status-dot active"></span> <span style="color: #00ff88;">Active (20
+                            modules)</span></div>
+                    <div><span class="status-dot simulated"></span> <span style="color: #ffcc00;">Simulated (8
+                            modules)</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLEET MANAGER / DISTRIBUTED NETWORK VIEW -->
+        <div id="fleet-view" class="view-section">
+            <div class="panel" style="margin: 20px;">
+                <div class="panel-header">
+                    <h2 class="panel-title">🌐 Distributed Radar Network</h2>
+                    <span class="panel-status">ML/QML ACTIVE</span>
+                </div>
+
+                <!-- Network Overview Stats -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                    <div class="metric-card">
+                        <div class="metric-label">Total Nodes</div>
+                        <div class="metric-value">29</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Online</div>
+                        <div class="metric-value" style="color: #00ff88;">28 🟢</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Degraded</div>
+                        <div class="metric-value" style="color: #ffcc00;">1 🟡</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Offline</div>
+                        <div class="metric-value" style="color: #ff3366;">0 🔴</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Coverage</div>
+                        <div class="metric-value">96.6%</div>
+                    </div>
+                </div>
+
+                <!-- Radar Nodes Grid -->
+                <div id="radarNetworkGrid"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                </div>
+
+                <!-- Network Performance Section -->
+                <div
+                    style="margin-top: 40px; padding: 20px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid rgba(0, 212, 255, 0.2);">
+                    <h3 style="color: #00d4ff; margin-bottom: 20px;">📍 Coverage Analysis</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="metric-card">
+                            <div class="metric-label">📍 Tactical Coverage</div>
+                            <div class="metric-value">93%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">🌐 Regional Coverage</div>
+                            <div class="metric-value">100%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">🌍 Strategic Coverage</div>
+                            <div class="metric-value">100%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Network Performance Stats -->
+                <div
+                    style="margin-top: 30px; padding: 20px; background: rgba(0, 255, 136, 0.05); border-radius: 10px; border: 1px solid rgba(0, 255, 136, 0.2);">
+                    <h3 style="color: #00ff88; margin-bottom: 20px;">Network Performance</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="metric-card">
+                            <div class="metric-label">Avg CPU Load:</div>
+                            <div class="metric-value" id="avgCPU">50.8%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Avg Signal Quality:</div>
+                            <div class="metric-value" id="avgSignal">86.3%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Total Contacts Tracked:</div>
+                            <div class="metric-value" id="totalTracked">74</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Network Latency:</div>
+                            <div class="metric-value" id="netLatency">23ms</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Data Fusion Statistics -->
+                <div
+                    style="margin-top: 30px; padding: 20px; background: rgba(255, 204, 0, 0.05); border-radius: 10px; border: 1px solid rgba(255, 204, 0, 0.2);">
+                    <h3 style="color: #ffcc00; margin-bottom: 20px;">🔗 Data Fusion Statistics</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="metric-card">
+                            <div class="metric-label">Fused Contacts:</div>
+                            <div class="metric-value" id="fusedContacts">13</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Avg Sources/Contact:</div>
+                            <div class="metric-value" id="avgSources">5.6</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Fusion Quality:</div>
+                            <div class="metric-value" id="fusionQuality">73.7%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">ML Enhanced:</div>
+                            <div class="metric-value" id="mlEnhanced">13</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Trajectories Predicted:</div>
+                            <div class="metric-value" id="trajPredicted">0</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-label">Anomalies Detected:</div>
+                            <div class="metric-value" id="anomaliesDetected">13</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ML/QML Models Section -->
+                <div
+                    style="margin-top: 30px; padding: 20px; background: rgba(157, 78, 221, 0.05); border-radius: 10px; border: 1px solid rgba(157, 78, 221, 0.2);">
+                    <h3 style="color: #9d4edd; margin-bottom: 20px;">🤖 ML/QML Models</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div
+                            style="padding: 15px; background: rgba(10, 14, 26, 0.6); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 8px;">
+                            <h4 style="color: #9d4edd; margin-bottom: 10px;">Random Forest Classifier</h4>
+                            <div style="color: #aaa; font-size: 0.9rem;">
+                                <div>Accuracy: <span style="color: #00ff88; font-weight: bold;">94%</span></div>
+                                <div>Trees: <span style="color: #00d4ff;">100</span></div>
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 15px; background: rgba(10, 14, 26, 0.6); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 8px;">
+                            <h4 style="color: #9d4edd; margin-bottom: 10px;">LSTM Trajectory Predictor</h4>
+                            <div style="color: #aaa; font-size: 0.9rem;">
+                                <div>Accuracy: <span style="color: #00ff88; font-weight: bold;">89%</span></div>
+                                <div>Horizon: <span style="color: #00d4ff;">20s</span></div>
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 15px; background: rgba(10, 14, 26, 0.6); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 8px;">
+                            <h4 style="color: #9d4edd; margin-bottom: 10px;">Isolation Forest</h4>
+                            <div style="color: #aaa; font-size: 0.9rem;">
+                                <div>Sensitivity: <span style="color: #00ff88; font-weight: bold;">92%</span></div>
+                                <div>FPR: <span style="color: #ff3366;">8%</span></div>
+                            </div>
+                        </div>
+                        <div
+                            style="padding: 15px; background: rgba(10, 14, 26, 0.6); border: 1px solid rgba(157, 78, 221, 0.3); border-radius: 8px;">
+                            <h4 style="color: #9d4edd; margin-bottom: 10px;">⚛️ Quantum Feature Mapper</h4>
+                            <div style="color: #aaa; font-size: 0.9rem;">
+                                <div>Qubits: <span style="color: #00d4ff; font-weight: bold;">8</span></div>
+                                <div>Enhancement: <span style="color: #00ff88;">15-25%</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CASE STUDY MODAL -->
+        <div id="caseStudyModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center;">
+            <div
+                style="background: rgba(10, 20, 30, 0.95); border: 1px solid #ffcc00; width: 600px; padding: 20px; box-shadow: 0 0 50px rgba(255, 204, 0, 0.2);">
+                <div style="text-align: right;">
+                    <button onclick="document.getElementById('caseStudyModal').style.display='none'"
+                        style="background: none; border: none; color: #ff3232; font-size: 1.5rem; cursor: pointer;">&times;</button>
+                </div>
+                <div id="caseStudyContent">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Enterprise Modules -->
+        <script src="js/core/ew.js"></script>
+        <script src="js/core/aide.js"></script>
+        <script src="js/core/insights.js"></script>
+        <script src="js/ui/notifications.js"></script>
+        <script src="js/modules/module-manager.js"></script>
+
+        <!-- JavaScript Modules -->
+        <script src="js/auth.js"></script>
+        <script src="js/radar.js"></script>
+        <script src="js/detection.js"></script>
+        <script src="js/inventory.js"></script>
+        <script src="js/missions.js"></script>
+        <script src="js/analytics.js"></script>
+        <script src="js/ml-engine.js"></script>
+        <script src="js/radar-network.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <div id="twin-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Digital Twin Simulation & Prediction</h2>
+                    <span class="panel-status" style="background: #00d4ff; color: #000;">SIMULATION MODE</span>
+                </div>
+
+                <div class="twin-dashboard"
+                    style="display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px; height: 100%;">
+
+                    <!-- Left: Configuration -->
+                    <div class="twin-config" style="display: flex; flex-direction: column; gap: 15px;">
+                        <h3>Simulation Parameters</h3>
+                        <div class="control-group">
+                            <label>Terrain Model</label>
+                            <select class="cyber-select" id="twinTerrain">
+                                <option>Urban Canyon</option>
+                                <option>Mountainous Region</option>
+                                <option>Coastal Plains</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Radar Elevation (m)</label>
+                            <input type="range" class="cyber-range" min="0" max="5000" value="1500" id="twinElevation">
+                        </div>
+                        <div class="control-group">
+                            <label>Sky Condition</label>
+                            <select class="cyber-select" id="twinSky">
+                                <option>Clear</option>
+                                <option>Scattered Clouds</option>
+                                <option>Overcast</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Precipitation</label>
+                            <select class="cyber-select" id="twinPrecip">
+                                <option>None</option>
+                                <option>Light Drizzle</option>
+                                <option>Heavy Rain</option>
+                                <option>Thunderstorm</option>
+                                <option>Snow / Ice</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="quantumRadarApp.digitalTwin.runSimulation()">RUN
+                            SIMULATION & AI BENCHMARK</button>
+                    </div>
+
+                    <!-- Predicted Performance Card -->
+                    <div
+                        style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), rgba(0, 10, 20, 0.95)); border: 1px solid rgba(0, 255, 136, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(0, 255, 136, 0.15);">
+                        <h4
+                            style="color: #00ff88; font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; font-family: 'Orbitron', sans-serif;">
+                            📊 Predicted Performance</h4>
+
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <!-- Detection Probability -->
+                            <div
+                                style="padding: 12px; background: linear-gradient(90deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05)); border-left: 4px solid #00ff88; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #bbb; font-size: 0.9rem;">Detection Probability:</span>
+                                    <span id="simProb"
+                                        style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">--%</span>
+                                </div>
+                            </div>
+
+                            <!-- Blind Spots -->
+                            <div
+                                style="padding: 12px; background: linear-gradient(90deg, rgba(255, 51, 102, 0.15), rgba(255, 51, 102, 0.05)); border-left: 4px solid #ff3366; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #bbb; font-size: 0.9rem;">Blind Spots:</span>
+                                    <span id="simBlind"
+                                        style="color: #ff3366; font-weight: 700; font-size: 1.1rem;">--%</span>
+                                </div>
+                            </div>
+
+                            <!-- Max Range -->
+                            <div
+                                style="padding: 12px; background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05)); border-left: 4px solid #00d4ff; border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #bbb; font-size: 0.9rem;">Maximum Range:</span>
+                                    <span id="simRange" style="color: #00d4ff; font-weight: 700; font-size: 1.1rem;">--
+                                        km</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Model Benchmark Card -->
+                    <div
+                        style="background: linear-gradient(135deg, rgba(179, 102, 255, 0.05), rgba(0, 10, 20, 0.95)); border: 1px solid rgba(179, 102, 255, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 8px 32px rgba(179, 102, 255, 0.15);">
+                        <h4
+                            style="color: #b366ff; font-size: 1.1rem; font-weight: 700; margin-bottom: 18px; font-family: 'Orbitron', sans-serif;">
+                            🤖 AI Model Benchmark</h4>
+
+                        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                            <!-- Random Forest -->
+                            <div style="padding: 10px; background: rgba(179, 102, 255, 0.05); border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #ccc; font-size: 0.85rem;">Random Forest:</span>
+                                    <span id="accRF"
+                                        style="color: #00ff88; font-weight: 600; font-size: 0.95rem;">--%</span>
+                                </div>
+                            </div>
+
+                            <!-- CNN -->
+                            <div style="padding: 10px; background: rgba(179, 102, 255, 0.05); border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #ccc; font-size: 0.85rem;">CNN (Deep Learning):</span>
+                                    <span id="accCNN"
+                                        style="color: #00ff88; font-weight: 600; font-size: 0.95rem;">--%</span>
+                                </div>
+                            </div>
+
+                            <!-- Quantum SVM -->
+                            <div style="padding: 10px; background: rgba(179, 102, 255, 0.05); border-radius: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #ccc; font-size: 0.85rem;">Quantum SVM:</span>
+                                    <span id="accQSVM"
+                                        style="color: #00d4ff; font-weight: 600; font-size: 0.95rem;">--%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recommendation Banner -->
+                        <div
+                            style="padding: 15px; background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(179, 102, 255, 0.1)); border: 1px solid rgba(0, 212, 255, 0.4); border-radius: 8px; text-align: center;">
+                            <div
+                                style="color: #00d4ff; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">
+                                ✨ RECOMMENDED MODEL</div>
+                            <div id="modelRec"
+                                style="color: #fff; font-size: 1.05rem; font-weight: 700; font-family: 'Orbitron', sans-serif;">
+                                --</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Visualizer -->
+                <div class="twin-visualizer"
+                    style="border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; position: relative;">
+                    <canvas id="twinCanvas" style="width: 100%; height: 100%; background: #000;"></canvas>
+                    <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.8rem; color: #666;">Use
+                        mouse to rotate view (Simulated)</div>
+                </div>
+
+            </div>
+        </div>
+        </div>
+
+        <!-- VIEW: Fleet Manager -->
+        <div id="fleet-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Global Fleet Management</h2>
+                    <span class="panel-status">NETWORK ONLINE</span>
+                </div>
+
+                <div class="fleet-dashboard"
+                    style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; height: 100%;">
+                    <!-- Left: Map -->
+                    <div class="fleet-map-container"
+                        style="position: relative; border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; overflow: hidden; height: 600px;">
+                        <canvas id="fleetMapCanvas" style="width: 100%; height: 100%; background: #050a14;"></canvas>
+                        <div class="map-overlay"
+                            style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; pointer-events: none;">
+                            <div>Active Nodes: <span id="activeNodesCount" style="color: #00ff00;">0</span></div>
+                            <div>Critical Alerts: <span id="criticalAlertsCount" style="color: #ff3232;">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: List -->
+                    <div class="fleet-list-container" style="display: flex; flex-direction: column;">
+                        <h3>Deployed Systems</h3>
+                        <div id="radarFleetList" class="scrolling-list"
+                            style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1); margin-top: 10px;">
+                            <!-- Populated by JS -->
+                            <div class="loading-text">Connecting to Fleet Command...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: Post Analysis -->
+        <div id="analysis-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Mission Replay & Forensic Analysis</h2>
+                    <span class="panel-status">ARCHIVE MODE</span>
+                </div>
+
+                <div class="analysis-dashboard"
+                    style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; padding: 20px; height: 100%;">
+
+                    <!-- Left: Log List -->
+                    <div class="log-list-container" style="display: flex; flex-direction: column;">
+                        <h3>Mission Logs</h3>
+                        <div class="control-group" style="margin-bottom: 10px;">
+                            <input type="text" class="cyber-input" placeholder="Search Logs..." style="width: 100%;">
+                        </div>
+                        <div id="missionLogList" class="scrolling-list"
+                            style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1);">
+                            <!-- Populated by JS -->
+                            <div class="loading-text">Retrieving encrypted logs...</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Replay Player -->
+                    <div class="replay-container" style="display: flex; flex-direction: column; gap: 15px;">
+
+                        <!-- Mini Radar Replay -->
+                        <div class="replay-screen"
+                            style="flex-grow: 1; border: 1px solid rgba(0,212,255,0.2); background: #000; position: relative;">
+                            <canvas id="replayCanvas" style="width: 100%; height: 100%;"></canvas>
+                            <div class="replay-overlay"
+                                style="position: absolute; top: 10px; right: 10px; color: #00ff00; font-family: monospace;">
+                                REPLAY SPEED: <span id="replaySpeed">1x</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="replay-controls"
+                            style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 4px;">
+                            <div class="timeline-row"
+                                style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                                <span id="replayTime">00:00:00</span>
+                                <input type="range" class="cyber-range" id="replayTimeline" value="0" min="0" max="100"
+                                    style="flex-grow: 1;">
+                                <span>-01:30:00</span>
+                            </div>
+                            <div class="button-row" style="display: flex; justify-content: center; gap: 10px;">
+                                <button class="btn" style="min-width: 40px;">⏮️</button>
+                                <button class="btn btn-primary" style="min-width: 60px;">▶ PLAY</button>
+                                <button class="btn" style="min-width: 40px;">⏸️</button>
+                                <button class="btn" style="min-width: 40px;">⏭️</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- Close app-container -->
+
+
+        <!-- JavaScript Modules -->
+        <script src="js/auth.js"></script>
+        <script src="js/radar.js"></script>
+        <script src="js/detection.js"></script>
+        <script src="js/inventory.js"></script>
+        <script src="js/missions.js"></script>
+        <script src="js/analytics.js"></script>
+        <script src="js/ml-engine.js"></script>
+        <script src="js/radar-network.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <script src="js/advanced-features.js"></script>
+        <script src="js/calibration.js"></script>
+        <script src="js/sigint.js"></script>
+        <script src="js/fleet.js"></script>
+        <script src="js/digital-twin.js"></script>
+        <script src="js/post-analysis.js"></script>
+        <!-- Enterprise Architecture Layers -->
+        <script src="js/core/quantum-radar.js"></script>
+        <script src="js/core/intelligence.js"></script>
+        <script src="js/core/simulation.js"></script>
+        <script src="js/infra/backend.js"></script>
+        <script src="js/infra/storage.js"></script>
+        <script src="js/infra/security.js"></script>
+        <div class="control-group">
+            <label>Terrain Model</label>
+            <select class="cyber-select" id="twinTerrain">
+                <option>Urban Canyon</option>
+                <option>Mountainous Region</option>
+                <option>Coastal Plains</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Radar Elevation (m)</label>
+            <input type="range" class="cyber-range" min="0" max="5000" value="1500" id="twinElevation">
+        </div>
+        <div class="control-group">
+            <label>Sky Condition</label>
+            <select class="cyber-select" id="twinSky">
+                <option>Clear</option>
+                <option>Scattered Clouds</option>
+                <option>Overcast</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Precipitation</label>
+            <select class="cyber-select" id="twinPrecip">
+                <option>None</option>
+                <option>Light Drizzle</option>
+                <option>Heavy Rain</option>
+                <option>Thunderstorm</option>
+                <option>Snow / Ice</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" onclick="quantumRadarApp.digitalTwin.runSimulation()">RUN
+            SIMULATION & AI BENCHMARK</button>
+
+        <div class="simulation-results"
+            style="margin-top: 20px; border-top: 1px solid rgba(0,212,255,0.2); padding-top: 20px;">
+            <h4>Predicted Performance</h4>
+            <div class="metric-row">Detection Prob: <span id="simProb" style="color: #00ff00;">--%</span>
+            </div>
+            <div class="metric-row">Blind Spots: <span id="simBlind" style="color: #ff3232;">--%</span>
+            </div>
+            <div class="metric-row">Max Range: <span id="simRange" style="color: #00d4ff;">-- km</span>
+            </div>
+
+            <h4 style="margin-top: 20px;">AI Model Benchmark (Accuracy)</h4>
+            <div id="aiBenchmarkResults" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; justify-content: space-between;"><span>Random Forest:</span>
+                    <span id="accRF" style="color: #aaa;">--%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;"><span>CNN (Deep
+                        Learning):</span> <span id="accCNN" style="color: #aaa;">--%</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Quantum SVM:</span>
+                    <span id="accQSVM" style="color: #00ff00;">--%</span>
+                </div>
+                <div style="margin-top: 10px; color: var(--quantum-blue); font-weight: bold;">
+                    RECOMMENDED: <span id="modelRec">--</span></div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Right: Visualizer -->
+        <div class="twin-visualizer"
+            style="border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; position: relative;">
+            <canvas id="twinCanvas" style="width: 100%; height: 100%; background: #000;"></canvas>
+            <div style="position: absolute; bottom: 10px; right: 10px; font-size: 0.8rem; color: #666;">Use
+                mouse to rotate view (Simulated)</div>
+        </div>
+
+        </div>
+        </div>
+        </div>
+
+        <!-- VIEW: Fleet Manager -->
+        <div id="fleet-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Global Fleet Management</h2>
+                    <span class="panel-status">NETWORK ONLINE</span>
+                </div>
+
+                <div class="fleet-dashboard"
+                    style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; height: 100%;">
+                    <!-- Left: Map -->
+                    <div class="fleet-map-container"
+                        style="position: relative; border: 1px solid rgba(0,212,255,0.2); border-radius: 4px; overflow: hidden; height: 600px;">
+                        <canvas id="fleetMapCanvas" style="width: 100%; height: 100%; background: #050a14;"></canvas>
+                        <div class="map-overlay"
+                            style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); padding: 10px; pointer-events: none;">
+                            <div>Active Nodes: <span id="activeNodesCount" style="color: #00ff00;">0</span></div>
+                            <div>Critical Alerts: <span id="criticalAlertsCount" style="color: #ff3232;">0</span></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: List -->
+                    <div class="fleet-list-container" style="display: flex; flex-direction: column;">
+                        <h3>Deployed Systems</h3>
+                        <div id="radarFleetList" class="scrolling-list"
+                            style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1); margin-top: 10px;">
+                            <!-- Populated by JS -->
+                            <div class="loading-text">Connecting to Fleet Command...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: Post Analysis -->
+        <div id="analysis-view" class="view-section" style="display:none;">
+            <div class="panel" style="min-height: 80vh;">
+                <div class="panel-header">
+                    <h2 class="panel-title">Mission Replay & Forensic Analysis</h2>
+                    <span class="panel-status">ARCHIVE MODE</span>
+                </div>
+
+                <div class="analysis-dashboard"
+                    style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; padding: 20px; height: 100%;">
+
+                    <!-- Left: Log List -->
+                    <div class="log-list-container" style="display: flex; flex-direction: column;">
+                        <h3>Mission Logs</h3>
+                        <div class="control-group" style="margin-bottom: 10px;">
+                            <input type="text" class="cyber-input" placeholder="Search Logs..." style="width: 100%;">
+                        </div>
+                        <div id="missionLogList" class="scrolling-list"
+                            style="flex-grow: 1; overflow-y: auto; border: 1px solid rgba(0,212,255,0.1);">
+                            <!-- Populated by JS -->
+                            <div class="loading-text">Retrieving encrypted logs...</div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Replay Player -->
+                    <div class="replay-container" style="display: flex; flex-direction: column; gap: 15px;">
+
+                        <!-- Mini Radar Replay -->
+                        <div class="replay-screen"
+                            style="flex-grow: 1; border: 1px solid rgba(0,212,255,0.2); background: #000; position: relative;">
+                            <canvas id="replayCanvas" style="width: 100%; height: 100%;"></canvas>
+                            <div class="replay-overlay"
+                                style="position: absolute; top: 10px; right: 10px; color: #00ff00; font-family: monospace;">
+                                REPLAY SPEED: <span id="replaySpeed">1x</span>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="replay-controls"
+                            style="background: rgba(0,212,255,0.05); padding: 15px; border-radius: 4px;">
+                            <div class="timeline-row"
+                                style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                                <span id="replayTime">00:00:00</span>
+                                <input type="range" class="cyber-range" id="replayTimeline" value="0" min="0" max="100"
+                                    style="flex-grow: 1;">
+                                <span>-01:30:00</span>
+                            </div>
+                            <div class="button-row" style="display: flex; justify-content: center; gap: 10px;">
+                                <button class="btn" style="min-width: 40px;">⏮️</button>
+                                <button class="btn btn-primary" style="min-width: 60px;">▶ PLAY</button>
+                                <button class="btn" style="min-width: 40px;">⏸️</button>
+                                <button class="btn" style="min-width: 40px;">⏭️</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        </div> <!-- Close app-container -->
+
+
+        <!-- JavaScript Modules -->
+        <script src="js/auth.js"></script>
+        <script src="js/radar.js"></script>
+        <script src="js/detection.js"></script>
+        <script src="js/inventory.js"></script>
+        <script src="js/missions.js"></script>
+        <script src="js/analytics.js"></script>
+        <script src="js/ml-engine.js"></script>
+        <script src="js/radar-network.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <script src="js/fusion-engine.js"></script>
+        <script src="js/advanced-features.js"></script>
+        <script src="js/calibration.js"></script>
+        <script src="js/sigint.js"></script>
+        <script src="js/fleet.js"></script>
+        <script src="js/digital-twin.js"></script>
+        <script src="js/post-analysis.js"></script>
+        <!-- Enterprise Architecture Layers -->
+        <script src="js/core/quantum-radar.js"></script>
+        <script src="js/core/intelligence.js"></script>
+        <script src="js/core/simulation.js"></script>
+        <script src="js/infra/backend.js"></script>
+        <script src="js/infra/storage.js"></script>
+        <script src="js/infra/security.js"></script>
+        <script src="js/infra/api.js"></script>
+        <script src="js/infra/hardware.js"></script>
+        <script src="js/infra/devops.js"></script>
+        <script src="js/infra/business.js"></script>
+
+        <!-- Session Check - Bypass login if already authenticated -->
+        <script>
+            window.addEventListener('DOMContentLoaded', () => {
+                const session = sessionStorage.getItem('qrip_user');
+                console.log('[DASHBOARD] Checking session...', session ? 'Found' : 'Not found');
+
+                if (session) {
+                    // User already logged in from index.html
+                    const loginOverlay = document.getElementById('login-overlay');
+                    if (loginOverlay) {
+                        loginOverlay.style.display = 'none';
+                        console.log('[DASHBOARD] Login bypass - session active');
+                    }
+                }
+            });
+        </script>
+
+        <!-- Legacy Modules -->
+        <!-- SESSION PERSISTENCE: Auto-login if coming from index.html -->
+        <script>
+            (function () {
+                console.log('[DASHBOARD-SESSION] Checking for active session...');
+                const userData = sessionStorage.getItem('qrip_user');
+
+                if (userData) {
+                    console.log('[DASHBOARD-SESSION] Session found - auto-login');
+                    // Wait for DOM and hide login overlay
+                    window.addEventListener('DOMContentLoaded', function () {
+                        const loginOverlay = document.getElementById('login-overlay');
+                        if (loginOverlay) {
+                            loginOverlay.style.display = 'none';
+                            console.log('[DASHBOARD-SESSION] Login overlay hidden');
+                        }
+                    });
+                } else {
+                    console.log('[DASHBOARD-SESSION] No session - will show login');
+                }
+            })();
+        </script>
+
+        <!-- Main Application -->
+        <script src="js/app.js"></script>
+    </body>
+
+</html>

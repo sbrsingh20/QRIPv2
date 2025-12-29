@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIP - Quantum Radar Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, #000428 0%, #004e92 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 20, 40, 0.4) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                filter: brightness(1);
+            }
+
+            50% {
+                filter: brightness(1.3);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            padding: 15px 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .module-grid {
+            max-width: 1600px;
+            margin: 60px auto;
+            padding: 0 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .module-card {
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.9), rgba(0, 10, 30, 0.95));
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .module-card:hover::before {
+            opacity: 1;
+        }
+
+        .module-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #00d4ff;
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.5);
+        }
+
+        .module-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .module-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .module-description {
+            color: #aaa;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .module-launch {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border: none;
+            color: #000;
+            padding: 14px 0;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .module-launch:hover {
+            background: linear-gradient(135deg, #00ffaa, #00ff88);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .special-module {
+            grid-column: span 2;
+            background: linear-gradient(135deg, rgba(255, 100, 100, 0.1), rgba(100, 50, 150, 0.1));
+            border: 3px solid #ffcc00;
+        }
+
+        .special-badge {
+            background: linear-gradient(135deg, #ffcc00, #ff9900);
+        }
+
+        .layer-divider {
+            text-align: center;
+            margin: 70px 0 50px;
+            padding: 30px 0;
+            position: relative;
+            clear: both;
+        }
+
+        .layer-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            display: inline-block;
+            padding: 0 30px;
+            background: linear-gradient(135deg, #000428, #004e92);
+            position: relative;
+            z-index: 2;
+        }
+
+        .layer-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+        }
+
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 2.5rem;
+            }
+
+            .module-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .special-module {
+                grid-column: span 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Page (shown first) -->
+    <div id="loginPage"
+        style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #000;">
+        <div
+            style="background: rgba(10, 20, 30, 0.95); border: 2px solid #00d4ff; padding: 40px; max-width: 500px; width: 90%; border-radius: 15px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
+            <h1 style="color: #00d4ff; text-align: center; font-family: 'Orbitron', sans-serif; margin-bottom: 10px;">🔐
+                QRIP ACCESS CONTROL</h1>
+            <p style="text-align: center; color: #aaa; margin-bottom: 30px;">Quantum Radar Intelligence Platform</p>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #00d4ff; display: block; margin-bottom: 8px; font-weight: 600;">SELECT ROLE</label>
+                <select id="roleSelect"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid #00d4ff; color: #fff; border-radius: 5px; font-size: 1rem;">
+                    <option value="user">👤 User - Basic Access</option>
+                    <option value="data">📊 Data Analyst - Intelligence Access</option>
+                    <option value="admin">⚙️ Administrator - Operational Control</option>
+                    <option value="superadmin">🔑 Super Admin - Full Access</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="color: #00d4ff; display: block; margin-bottom: 8px; font-weight: 600;">USERNAME</label>
+                <input type="text" id="username" placeholder="Enter username"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid #00d4ff; color: #fff; border-radius: 5px; font-size: 1rem;">
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <label style="color: #00d4ff; display: block; margin-bottom: 8px; font-weight: 600;">PASSWORD</label>
+                <input type="password" id="password" placeholder="Enter password"
+                    style="width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.5); border: 1px solid #00d4ff; color: #fff; border-radius: 5px; font-size: 1rem;">
+            </div>
+
+            <button id="loginBtn"
+                style="width: 100%; padding: 15px; background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; color: #000; font-weight: bold; font-size: 1.1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+                🚀 LOGIN TO SYSTEM
+            </button>
+
+            <div id="loginError"
+                style="margin-top: 15px; color: #ff3366; text-align: center; min-height: 20px; font-weight: 600;"></div>
+
+            <div
+                style="margin-top: 25px; padding: 15px; background: rgba(0, 212, 255, 0.05); border-left: 3px solid #00d4ff; border-radius: 5px;">
+                <div style="color: #00d4ff; font-weight: 600; margin-bottom: 10px;">Test Credentials:</div>
+                <div style="color: #aaa; font-size: 0.9rem; line-height: 1.8;">
+                    • User: <code style="color: #00ff88;">user/user123</code><br>
+                    • Data: <code style="color: #00ff88;">data/data123</code><br>
+                    • Admin: <code style="color: #00ff88;">admin/admin123</code><br>
+                    • Super: <code style="color: #00ff88;">superadmin/super123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application (Hidden until login) -->
+    <div id="appContainer" style="display: none;">
+        <!-- Hero Section -->
+        <div id="heroSection" class="hero-section">
+            <div class="hero-content">
+                <h1 class="main-title">⚡ QRIP COMMAND CENTER</h1>
+                <p class="subtitle">Quantum Radar Intelligence Platform • Enterprise Architecture</p>
+                <!-- User info will be inserted here after login -->
+            </div>
+        </div>
+
+        <!-- Module Grid -->
+        <div class="module-grid" id="moduleGrid">
+            <!-- SPECIAL: QRIP Complete System -->
+            <div class="module-card special-card" onclick="openDashboard()">
+                <div class="special-badge">⭐ QRIP COMPLETE SYSTEM</div>
+                <h3 class="module-title">🎯 Full Operational Radar Dashboard + 28 Modules</h3>
+                <p class="module-desc">Access the complete integrated radar system with ALL operational views. Opens in
+                    NEW TAB.</p>
+                <button class="module-btn">▶ LAUNCH SYSTEM (NEW TAB)</button>
+            </div>
+
+            <!-- Layer A: Quantum Radar Core -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #00d4ff;">Layer A: Quantum Radar Core</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(1)">
+                <div class="module-badge">MODULE 1</div>
+                <h3 class="module-title">QRIP Core Radar Engine</h3>
+                <p class="module-desc">Central processor integrating quantum illumination with classical radar DSP.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(2)">
+                <div class="module-badge">MODULE 2</div>
+                <h3 class="module-title">Quantum Illumination Simulator</h3>
+                <p class="module-desc">Monte Carlo quantum scattering simulations for stealth object detection.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(3)">
+                <div class="module-badge">MODULE 3</div>
+                <h3 class="module-title">Classical DSP Engine</h3>
+                <p class="module-desc">Advanced signal processing with FIR/IIR filters and clutter rejection.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(4)">
+                <div class="module-badge">MODULE 4</div>
+                <h3 class="module-title">Radar Network Fusion Engine</h3>
+                <p class="module-desc">Multi-sensor data fusion using Bayesian algorithms and graph neural networks.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer B: Threat Intelligence -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #ffcc00;">Layer B: Threat Intelligence</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(5)">
+                <div class="module-badge">MODULE 5</div>
+                <h3 class="module-title">AI Threat Cognition Engine</h3>
+                <p class="module-desc">LSTM micro-Doppler models and vision transformers for threat classification.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(6)">
+                <div class="module-badge">MODULE 6</div>
+                <h3 class="module-title">Micro-Doppler Pattern Analyzer</h3>
+                <p class="module-desc">Time-frequency analysis for propeller signatures and gait patterns.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(7)">
+                <div class="module-badge">MODULE 7</div>
+                <h3 class="module-title">Swarm Behaviour Prediction</h3>
+                <p class="module-desc">Multi-agent ML for drone swarm intent prediction.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(8)">
+                <div class="module-badge">MODULE 8</div>
+                <h3 class="module-title">Hypersonic Track Predictor</h3>
+                <p class="module-desc">Non-linear Kalman filtering for high-speed targets.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer EW: Electronic Warfare -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #ff3366;">Layer EW: Electronic Warfare</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(9)">
+                <div class="module-badge">MODULE 9</div>
+                <h3 class="module-title">Jammer Detection Engine</h3>
+                <p class="module-desc">DRFM fingerprinting and signal coherence checks.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(10)">
+                <div class="module-badge">MODULE 10</div>
+                <h3 class="module-title">Anti-DRFM Countermeasures</h3>
+                <p class="module-desc">Time-coded waveforms with phase-shift randomness.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(11)">
+                <div class="module-badge">MODULE 11</div>
+                <h3 class="module-title">Noise Floor Inflation Detector</h3>
+                <p class="module-desc">Cross-channel correlation to identify broadband jamming.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer D: Autonomous Decision (AIDE) -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #00ff88;">Layer D: Autonomous Decision (AIDE)</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(12)">
+                <div class="module-badge">MODULE 12</div>
+                <h3 class="module-title">AIDE Decision Engine</h3>
+                <p class="module-desc">Utility-based ML with Monte Carlo outcome simulation.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(13)">
+                <div class="module-badge">MODULE 13</div>
+                <h3 class="module-title">Countermeasure Assignment</h3>
+                <p class="module-desc">Automated assignment of jammers, lasers, and kinetic interceptors.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(14)">
+                <div class="module-badge">MODULE 14</div>
+                <h3 class="module-title">Priority Ranking Engine</h3>
+                <p class="module-desc">Real-time threat scoring and priority leaderboard.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer H: Situational Awareness -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #9d4edd;">Layer H: Situational Awareness</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(15)">
+                <div class="module-badge">MODULE 15</div>
+                <h3 class="module-title">3D Radar Hologram Renderer</h3>
+                <p class="module-desc">WebGL volumetric battlespace visualization.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(16)">
+                <div class="module-badge">MODULE 16</div>
+                <h3 class="module-title">Geospatial Intelligence Layer</h3>
+                <p class="module-desc">Terrain and weather integration for terrain-aware tracking.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(17)">
+                <div class="module-badge">MODULE 17</div>
+                <h3 class="module-title">Multi-Track Visualization</h3>
+                <p class="module-desc">Real-time display of 300+ objects with vector overlays.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer C: Simulation & Digital Twin -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #06ffa5;">Layer C: Simulation & Digital Twin</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(18)">
+                <div class="module-badge">MODULE 18</div>
+                <h3 class="module-title">Radar Digital Twin Engine</h3>
+                <p class="module-desc">Real-time mirror of physical radar systems.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(19)">
+                <div class="module-badge">MODULE 19</div>
+                <h3 class="module-title">Scenario Simulator</h3>
+                <p class="module-desc">Build and run attack/defence scenarios.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(20)">
+                <div class="module-badge">MODULE 20</div>
+                <h3 class="module-title">Quantum-Radar Sandbox</h3>
+                <p class="module-desc">Experimental environment for quantum model testing.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer I: Cloud & Edge Compute -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #f72585;">Layer I: Cloud & Edge Compute</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(21)">
+                <div class="module-badge">MODULE 21</div>
+                <h3 class="module-title">Radar Edge Compute Stack</h3>
+                <p class="module-desc">On-device ML and DSP processing.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(22)">
+                <div class="module-badge">MODULE 22</div>
+                <h3 class="module-title">Defence Cloud Orchestrator</h3>
+                <p class="module-desc">Multi-radar cloud control with synchronized node management.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(23)">
+                <div class="module-badge">MODULE 23</div>
+                <h3 class="module-title">Secure Telemetry (PQC)</h3>
+                <p class="module-desc">Post-quantum cryptography for secure telemetry streams.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer E: Storage & Forensics -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #4cc9f0;">Layer E: Storage & Forensics</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(24)">
+                <div class="module-badge">MODULE 24</div>
+                <h3 class="module-title">Forensic Reconstruction</h3>
+                <p class="module-desc">Rebuild attack sequences from historical logs.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(25)">
+                <div class="module-badge">MODULE 25</div>
+                <h3 class="module-title">Radar Log Compression</h3>
+                <p class="module-desc">10× compression of radar data with quality control.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(26)">
+                <div class="module-badge">MODULE 26</div>
+                <h3 class="module-title">Threat Archive Engine</h3>
+                <p class="module-desc">Searchable database of classified threats.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <!-- Layer K: Command & Control -->
+            <div class="layer-divider">
+                <span class="layer-title" style="color: #ffd60a;">Layer K: Command & Control</span>
+            </div>
+
+            <div class="module-card" onclick="launchModule(27)">
+                <div class="module-badge">MODULE 27</div>
+                <h3 class="module-title">Mission Planner & Playbook</h3>
+                <p class="module-desc">Auto-generate defence plans with coverage analysis.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+
+            <div class="module-card" onclick="launchModule(28)">
+                <div class="module-badge">MODULE 28</div>
+                <h3 class="module-title">Command OS Dashboard</h3>
+                <p class="module-desc">Unified control panel with system health monitoring.</p>
+                <button class="module-btn">▶ Launch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/rbac.js"></script>
+    <script src="js/audit-logger.js"></script>
+    <script src="js/modules/module-manager.js"></script>
+    <script src="js/module-help.js"></script>
+    <script>
+        // Login Handler
+        document.addEventListener('DOMContentLoaded', function () {
+            // Auto-fill credentials based on role selection
+            const roleSelect = document.getElementById('roleSelect');
+            roleSelect.addEventListener('change', function () {
+                const role = this.value;
+                document.getElementById('username').value = role;
+                document.getElementById('password').value = role + '123';
+            });
+
+            // Initialize with user role selected
+            roleSelect.value = 'user';
+            document.getElementById('username').value = 'user';
+            document.getElementById('password').value = 'user123';
+
+            // Login button handler
+            document.getElementById('loginBtn').addEventListener('click', function () {
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                const role = document.getElementById('roleSelect').value;
+
+                if (!username || !password) {
+                    document.getElementById('loginError').textContent = '❌ Please enter username and password';
+                    return;
+                }
+
+                // Authenticate via RBAC Manager
+                const result = window.rbacManager.login(username, password, role);
+
+                if (result.success) {
+                    // Hide login, show app
+                    document.getElementById('loginPage').style.display = 'none';
+                    document.getElementById('appContainer').style.display = 'block';
+
+                    // Initialize UI
+                    initializeAfterLogin();
+                } else {
+                    document.getElementById('loginError').textContent = '❌ ' + result.message;
+                }
+            });
+        });
+
+        // Initialize UI after successful login
+        function initializeAfterLogin() {
+            const role = window.rbacManager.getCurrentRole();
+            const allowedModules = window.rbacManager.getAccessibleModules();
+            const user = window.rbacManager.getCurrentUser();
+
+            // Update hero section
+            const heroContent = document.querySelector('.hero-content');
+            heroContent.innerHTML = `
+                <h1 class="main-title">⚡ QRIP COMMAND CENTER</h1>
+                <p class="subtitle">Quantum Radar Intelligence Platform • Enterprise Architecture</p>
+                
+                <div class="user-info-card" style="background: linear-gradient(135deg, rgba(${role.color.replace('#', '')}, 0.1), transparent); border: 2px solid ${role.color};">
+                    <div class="user-name" style="color: ${role.color};">
+                        Logged in as: ${role.name}
+                    </div>
+                    <div class="user-details">
+                        ${role.description} • Access to ${allowedModules.length} modules
+                    </div>
+                    
+                    <div class="user-actions">
+                        <button onclick="window.open('profile.html', '_blank')" class="action-btn">👤 My Profile</button>
+                        ${role.level === 4 ? '<button onclick="window.open(\'admin-users.html\', \'_blank\')" class="action-btn admin-btn">🔑 Manage Users</button>' : ''}
+                        ${role.level === 4 ? '<button onclick="window.open(\'audit-viewer.html\', \'_blank\')" class="action-btn audit-btn">📊 Audit Logs</button>' : ''}
+                        <button onclick="logout()" class="action-btn logout-btn">🔒 Logout</button>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value">${allowedModules.length}</div>
+                        <div class="stat-label">Available Modules</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">9</div>
+                        <div class="stat-label">System Layers</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">500+</div>
+                        <div class="stat-label">Radar Nodes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">300+</div>
+                        <div class="stat-label">Track Capacity</div>
+                    </div>
+                </div>
+            `;
+
+            // Apply RBAC to module cards
+            const allCards = document.querySelectorAll('.module-card');
+            allCards.forEach((card, idx) => {
+                // First card (index 0) is QRIP Complete (module 29), rest are numbered sequentially
+                const moduleId = (idx === 0 || card.classList.contains('special-card')) ? 29 : idx;
+
+                if (!allowedModules.includes(moduleId)) {
+                    card.classList.add('locked');
+                    const btn = card.querySelector('.module-btn');
+                    if (btn) {
+                        btn.textContent = '🔒 RESTRICTED';
+                        btn.classList.add('locked-btn');
+                    }
+                    card.onclick = function () {
+                        alert(`⛔ ACCESS DENIED\n\nModule ${moduleId} requires higher clearance.\n\nYour role: ${role.name}`);
+                    };
+                }
+            });
+
+            // Initialize module manager
+            if (window.ModuleManager) {
+                setTimeout(() => {
+                    window.moduleManager = new ModuleManager();
+                }, 500);
+            }
+        }
+
+        // Launch dashboard in new tab
+        function openDashboard() {
+            window.open('dashboard.html', '_blank');
+        }
+
+        // Launch individual module
+        function launchModule(id) {
+            if (!window.rbacManager.hasModuleAccess(id)) {
+                alert(`⛔ ACCESS DENIED\n\nYou do not have permission to access Module ${id}.`);
+                return;
+            }
+
+            if (window.moduleManager) {
+                window.moduleManager.openModule(id);
+            } else {
+                alert('Module system loading... Please try again in a moment.');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                sessionStorage.clear();
+                location.reload();
+            }
+        }
+    </script>
+</body>
+
+</html>

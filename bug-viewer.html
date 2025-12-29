@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIP - Bug Report Viewer (Admin Only)</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: linear-gradient(135deg, #1a0000 0%, #4a0000 100%);
+            color: #fff;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff3366;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 20, 40, 0.8);
+            border: 1px solid #ff3366;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #ff3366;
+        }
+
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff3366, #cc0033);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            color: #000;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #cc0000);
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 51, 102, 0.4);
+        }
+
+        .filters {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filters h3 {
+            color: #ff3366;
+            margin-bottom: 15px;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group label {
+            display: block;
+            color: #ff3366;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ff3366;
+            color: #fff;
+            border-radius: 5px;
+        }
+
+        .bug-table {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #ff3366;
+        }
+
+        .bug-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bug-table th {
+            background: rgba(255, 51, 102, 0.2);
+            padding: 15px;
+            text-align: left;
+            color: #ff3366;
+            font-weight: bold;
+            border-bottom: 2px solid #ff3366;
+        }
+
+        .bug-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255, 51, 102, 0.1);
+        }
+
+        .bug-table tr:hover {
+            background: rgba(255, 51, 102, 0.05);
+            cursor: pointer;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .severity-ERROR {
+            background: rgba(255, 51, 102, 0.3);
+            color: #ff3366;
+        }
+
+        .severity-WARNING {
+            background: rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+        }
+
+        .severity-INFO {
+            background: rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+        }
+
+        .type-badge {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: #1a0000;
+            margin: 50px auto;
+            padding: 30px;
+            max-width: 900px;
+            border: 2px solid #ff3366;
+            border-radius: 10px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: #ff3366;
+        }
+
+        .bug-detail-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .bug-detail-item {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 51, 102, 0.3);
+        }
+
+        .bug-detail-label {
+            color: #ff3366;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bug-detail-value {
+            color: #ddd;
+            font-family: 'Roboto Mono', monospace;
+            word-break: break-all;
+        }
+
+        .stack-trace {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.85rem;
+            color: #ff6b6b;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🐛 BUG REPORT VIEWER</h1>
+        <p style="color: #ff3366;">⚠️ ADMINISTRATOR ACCESS ONLY ⚠️</p>
+        <p style="color: #aaa; margin-top: 10px;">Error Tracking & Debug Dashboard</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn btn-primary" onclick="refreshBugs()">🔄 Refresh Bugs</button>
+        <button class="btn btn-success" onclick="exportBugs('json')">📥 Export JSON</button>
+        <button class="btn btn-success" onclick="exportBugs('csv')">📥 Export CSV</button>
+        <button class="btn btn-primary" onclick="testBugReporter()">🧪 Test Error Capture</button>
+        <button class="btn btn-danger" onclick="clearAllBugs()">🗑️ Clear All Bugs</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <h3>🔍 Filter Bug Reports</h3>
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Type:</label>
+                <select id="filterType" onchange="applyFilters()">
+                    <option value="">All Types</option>
+                    <option value="JS_ERROR">JS Error</option>
+                    <option value="UNHANDLED_REJECTION">Unhandled Rejection</option>
+                    <option value="CONSOLE_ERROR">Console Error</option>
+                    <option value="USER_REPORTED">User Reported</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Severity:</label>
+                <select id="filterSeverity" onchange="applyFilters()">
+                    <option value="">All Severities</option>
+                    <option value="ERROR">Error</option>
+                    <option value="WARNING">Warning</option>
+                    <option value="INFO">Info</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>User:</label>
+                <input type="text" id="filterUser" placeholder="Filter by username" oninput="applyFilters()">
+            </div>
+            <div class="filter-group">
+                <label>Show Last:</label>
+                <select id="filterLimit" onchange="applyFilters()">
+                    <option value="50" selected>50 bugs</option>
+                    <option value="100">100 bugs</option>
+                    <option value="500">500 bugs</option>
+                    <option value="all">All bugs</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bug Table -->
+    <div class="bug-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Message</th>
+                    <th>User</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody id="bugTableBody"></tbody>
+        </table>
+    </div>
+
+    <!-- Bug Detail Modal -->
+    <div id="bugModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: #ff3366;">🐛 Bug Details</h2>
+                <span class="modal-close" onclick="closeBugModal()">&times;</span>
+            </div>
+            <div id="bugDetailContent"></div>
+        </div>
+    </div>
+
+    <script src="js/rbac.js"></script>
+    <script src="js/audit-logger.js"></script>
+    <script src="js/bug-reporter.js"></script>
+    <script>
+        // Check if user is Admin or Super Admin
+        window.rbacManager.restoreSession();
+        const currentRole = window.rbacManager.getCurrentRole();
+
+        if (!currentRole || currentRole.level < 3) {
+            alert('⛔ ACCESS DENIED\\n\\nThis page is restricted to Administrators only.');
+            window.location.href = 'index.html';
+        }
+
+        let allBugs = [];
+        let filteredBugs = [];
+
+        function loadStatistics() {
+            const stats = window.bugReporter.getStatistics();
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-number">${stats.totalBugs}</div>
+                    <div class="stat-label">Total Bugs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.bySeverity.ERROR || 0}</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.bySeverity.WARNING || 0}</div>
+                    <div class="stat-label">Warnings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${Object.keys(stats.byType).length}</div>
+                    <div class="stat-label">Bug Types</div>
+                </div>
+            `;
+        }
+
+        function refreshBugs() {
+            allBugs = window.bugReporter.getAllBugs().reverse();
+            applyFilters();
+            loadStatistics();
+        }
+
+        function applyFilters() {
+            const type = document.getElementById('filterType').value;
+            const severity = document.getElementById('filterSeverity').value;
+            const user = document.getElementById('filterUser').value.toLowerCase();
+            const limit = document.getElementById('filterLimit').value;
+
+            filteredBugs = allBugs.filter(bug => {
+                if (type && bug.type !== type) return false;
+                if (severity && bug.severity !== severity) return false;
+                if (user && !bug.username.toLowerCase().includes(user)) return false;
+                return true;
+            });
+
+            if (limit !== 'all') {
+                filteredBugs = filteredBugs.slice(0, parseInt(limit));
+            }
+
+            renderBugs();
+        }
+
+        function renderBugs() {
+            const tbody = document.getElementById('bugTableBody');
+
+            if (filteredBugs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #aaa; padding: 40px;">No bugs found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredBugs.map(bug => {
+                const timestamp = new Date(bug.timestamp).toLocaleString();
+                return `
+                    <tr onclick='showBugDetail(${JSON.stringify(bug).replace(/'/g, "\\'"')})' >
+                        <td style="color: #aaa; font-size: 0.85rem;">${timestamp}</td>
+                        <td><span class="type-badge">${bug.type}</span></td>
+                        <td><span class="severity-badge severity-${bug.severity}">${bug.severity}</span></td>
+                        <td style="color: #ddd; max-width: 300px; overflow: hidden; text-overflow: ellipsis;">${bug.message}</td>
+                        <td style="color: #00d4ff;">${bug.username}</td>
+                        <td style="color: #888; font-size: 0.85rem;">${bug.source || 'N/A'}</td>
+                    </tr >
+                    `;
+            }).join('');
+        }
+
+        function showBugDetail(bug) {
+            const modal = document.getElementById('bugModal');
+            const content = document.getElementById('bugDetailContent');
+
+            content.innerHTML = `
+                    < div class= "bug-detail-grid" >
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Bug ID</div>
+                        <div class="bug-detail-value">${bug.id}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Timestamp</div>
+                        <div class="bug-detail-value">${new Date(bug.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Type / Severity</div>
+                        <div class="bug-detail-value">
+                            <span class="type-badge">${bug.type}</span>
+                            <span class="severity-badge severity-${bug.severity}">${bug.severity}</span>
+                        </div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Message</div>
+                        <div class="bug-detail-value">${bug.message}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">User Context</div>
+                        <div class="bug-detail-value">User: ${bug.username} | Role: ${bug.role} | Session: ${bug.sessionId}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Source Location</div>
+                        <div class="bug-detail-value">${bug.source || 'N/A'} ${bug.line ? `(Line ${bug.line}, Col ${bug.column})` : ''}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">URL</div>
+                        <div class="bug-detail-value">${bug.url}</div>
+                    </div>
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Environment</div>
+                        <div class="bug-detail-value">
+                            Platform: ${bug.platform}<br>
+                            Screen: ${bug.screenResolution} | Viewport: ${bug.viewport}<br>
+                            Language: ${bug.language}
+                        </div>
+                    </div>
+                    ${bug.stack ? `
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Stack Trace</div>
+                        <div class="stack-trace">${bug.stack}</div>
+                    </div>
+                    ` : ''}
+                    ${bug.memory ? `
+                    <div class="bug-detail-item">
+                        <div class="bug-detail-label">Memory Usage</div>
+                        <div class="bug-detail-value">
+                            Used: ${(bug.memory.used / 1024 / 1024).toFixed(2)} MB |
+                            Total: ${(bug.memory.total / 1024 / 1024).toFixed(2)} MB |
+                            Limit: ${(bug.memory.limit / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+
+            modal.style.display = 'block';
+        }
+
+        function closeBugModal() {
+            document.getElementById('bugModal').style.display = 'none';
+        }
+
+        function exportBugs(format) {
+            window.bugReporter.downloadBugs(format);
+            alert(`✅ Bug reports exported as ${ format.toUpperCase() }`);
+        }
+
+        function clearAllBugs() {
+            if (confirm('⚠️ WARNING\\n\\nThis will permanently delete ALL bug reports.\\n\\nAre you sure?')) {
+                window.bugReporter.clearBugs();
+                refreshBugs();
+                alert('✅ All bug reports have been cleared.');
+            }
+        }
+
+        function testBugReporter() {
+            window.bugReporter.testErrorReporting();
+            setTimeout(() => {
+                refreshBugs();
+                alert('✅ Test errors generated! Check the bug list.');
+            }, 1000);
+        }
+
+        // Close modal on click outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('bugModal');
+            if (event.target === modal) {
+                closeBugModal();
+            }
+        };
+
+        // Initial load
+        refreshBugs();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,317 @@
+// Main Application Controller - Enhanced Version
+class QuantumRadarApp {
+    constructor() {
+        this.radar = null;
+        this.detectionSystem = new DetectionSystem();
+        this.inventorySystem = new InventorySystem();
+        this.analytics = new AnalyticsEngine();
+        this.missionPlanner = null;
+
+        this.updateInterval = null;
+        this.radarInterval = null;
+
+        this.selectedContact = null;
+        this.currentRadarMode = 'surveillance';
+    }
+
+    initialize() {
+        console.log('🚀 Initializing Advanced Quantum Radar Intelligence Platform...');
+
+        // Initialize radar
+        this.radar = new QuantumRadar('radarCanvas');
+
+        // Initialize mission planner
+        this.missionPlanner = new MissionPlanner(this.detectionSystem, this.inventorySystem);
+
+        // Generate REALISTIC warfare scenario
+        this.detectionSystem.generateRealisticScenario('mixed');
+
+        // Update radar with contacts
+        this.radar.setContacts(this.detectionSystem.getAllContacts());
+
+        // Initial render
+        this.render();
+
+        // Set up event listeners
+        this.setupEventListeners();
+
+        // Start update loops
+        this.startUpdateLoops();
+
+        const stats = this.detectionSystem.getContactStats();
+        const networkStats = this.radarNetwork.getNetworkStats();
+
+        console.log('✅ Realistic Warfare Radar initialized');
+        console.log(`🤖 ML/QML Engine: 4 models active`);
+        console.log(`🌐 Distributed Network: ${networkStats.totalNodes} nodes (${networkStats.onlineNodes} online)`);
+        console.log(`📊 ${stats.total} contacts across all ranges`);
+        console.log(`⚠️ ${stats.hostile} hostile | ✓ ${stats.friendly} friendly | ○ ${stats.civilian} civilian`);
+        console.log(`🎯 ${stats.critical} critical threats detected`);
+    }
+
+    setupEventListeners() {
+        // Radar zoom controls
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const resetZoomBtn = document.getElementById('resetZoom');
+        const refreshBtn = document.getElementById('refreshContacts');
+
+        if (zoomInBtn) zoomInBtn.addEventListener('click', () => this.radar.zoomIn());
+        if (zoomOutBtn) zoomOutBtn.addEventListener('click', () => this.radar.zoomOut());
+        if (resetZoomBtn) resetZoomBtn.addEventListener('click', () => this.radar.resetZoom());
+        if (refreshBtn) refreshBtn.addEventListener('click', () => this.refreshContacts());
+
+        // Range preset buttons
+        const tacticalBtn = document.getElementById('rangeTactical');
+        const regionalBtn = document.getElementById('rangeRegional');
+        const strategicBtn = document.getElementById('rangeStrategic');
+
+        if (tacticalBtn) tacticalBtn.addEventListener('click', () => this.setRangePreset('tactical'));
+        if (regionalBtn) regionalBtn.addEventListener('click', () => this.setRangePreset('regional'));
+        if (strategicBtn) strategicBtn.addEventListener('click', () => this.setRangePreset('strategic'));
+
+        // Radar mode buttons
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = e.target.dataset.mode;
+                this.setRadarMode(mode);
+            });
+        });
+
+        // Toggle buttons
+        const toggleTrailsBtn = document.getElementById('toggleTrails');
+        const toggleVectorsBtn = document.getElementById('toggleVectors');
+
+        if (toggleTrailsBtn) {
+            toggleTrailsBtn.addEventListener('click', () => {
+                this.radar.toggleTrails();
+                toggleTrailsBtn.textContent = this.radar.showTrails ? '📍 Hide Trails' : '📍 Show Trails';
+            });
+        }
+
+        if (toggleVectorsBtn) {
+            toggleVectorsBtn.addEventListener('click', () => {
+                this.radar.toggleVelocityVectors();
+                toggleVectorsBtn.textContent = this.radar.showVelocityVectors ? '➡️ Hide Vectors' : '➡️ Show Vectors';
+            });
+        }
+    }
+
+    setRadarMode(mode) {
+        this.currentRadarMode = mode;
+        this.radar.setMode(mode);
+        this.detectionSystem.setRadarMode(mode);
+
+        // Update button states
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            if (btn.dataset.mode === mode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        console.log(`🎯 Radar mode set to: ${mode.toUpperCase()}`);
+    }
+
+    setRangePreset(preset) {
+        switch (preset) {
+            case 'tactical':
+                this.radar.setRange(50); // 0-50km
+                console.log('📍 Tactical range: 0-50km');
+                break;
+            case 'regional':
+                this.radar.setRange(500); // 0-500km
+                console.log('📍 Regional range: 0-500km');
+                break;
+            case 'strategic':
+                this.radar.setRange(2000); // 0-2000km
+                console.log('📍 Strategic range: 0-2000km');
+                break;
+        }
+
+        // Highlight active preset
+        document.querySelectorAll('.range-preset-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`range${preset.charAt(0).toUpperCase() + preset.slice(1)}`)?.classList.add('active');
+    }
+
+    render() {
+        // Render contacts list (threats + non-threats)
+        this.detectionSystem.renderContactList('contactsList');
+
+        // Render inventory
+        this.inventorySystem.renderInventory('inventoryList');
+
+        // Render metrics
+        this.analytics.renderMetrics('metricsGrid', this.detectionSystem, this.inventorySystem);
+
+        // Update radar
+        this.radar.setContacts(this.detectionSystem.getAllContacts());
+
+        // Re-attach contact item click handlers
+        this.attachContactClickHandlers();
+    }
+
+    attachContactClickHandlers() {
+        const contactItems = document.querySelectorAll('.threat-item');
+        contactItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const contactId = item.dataset.contactId;
+                this.selectContact(contactId);
+            });
+        });
+    }
+
+    selectContact(contactId) {
+        this.selectedContact = contactId;
+        const contact = this.detectionSystem.getContactById(contactId);
+
+        if (!contact) return;
+
+        // Highlight selected contact
+        document.querySelectorAll('.threat-item').forEach(item => {
+            item.style.borderWidth = '1px';
+        });
+        const selectedItem = document.querySelector(`[data-contact-id="${contactId}"]`);
+        if (selectedItem) {
+            selectedItem.style.borderWidth = '3px';
+        }
+
+        // Auto-generate mission plan only for hostile contacts
+        if (contact.threat) {
+            this.planMission(contactId);
+        } else {
+            // Show contact info for non-threats
+            const resultContainer = document.getElementById('missionResult');
+            if (resultContainer) {
+                resultContainer.innerHTML = `
+                    <div class="mission-result active">
+                        <div class="strategy-title" style="color: var(--quantum-blue);">
+                            ${contact.classData.icon} Contact Information
+                        </div>
+                        <div class="strategy-details">
+                            <p><strong>ID:</strong> ${contact.id}</p>
+                            <p><strong>Classification:</strong> ${contact.classData.name}</p>
+                            <p><strong>IFF Status:</strong> <span class="iff-badge ${contact.iffStatus}">${contact.iffStatus.toUpperCase()}</span></p>
+                            <p><strong>Distance:</strong> ${contact.distance.toFixed(1)}km</p>
+                            <p><strong>Speed:</strong> ${contact.speed}km/h</p>
+                            <p><strong>Bearing:</strong> ${contact.bearing.toFixed(1)}°</p>
+                            ${contact.altitude > 0 ? `<p><strong>Altitude:</strong> ${contact.altitude}m</p>` : ''}
+                            <p><strong>RCS:</strong> ${contact.rcs.toFixed(2)}m²</p>
+                            <p><strong>Signal Strength:</strong> ${(contact.signalStrength * 100).toFixed(1)}%</p>
+                            <p><strong>Track Quality:</strong> ${(contact.trackQuality * 100).toFixed(1)}%</p>
+                        </div>
+                        ${contact.iffStatus === 'unknown' ? `
+                            <div class="resources-needed mt-md">
+                                <strong>⚠️ Classification Pending:</strong>
+                                <p>Continue monitoring for positive identification.</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        }
+    }
+
+    planMission(contactId) {
+        if (!contactId) {
+            // Plan for first critical threat
+            const criticalThreats = this.detectionSystem.getCriticalThreats();
+            if (criticalThreats.length > 0) {
+                contactId = criticalThreats[0].id;
+            } else {
+                const hostileContacts = this.detectionSystem.getHostileContacts();
+                if (hostileContacts.length > 0) {
+                    contactId = hostileContacts[0].id;
+                } else {
+                    return;
+                }
+            }
+        }
+
+        const contact = this.detectionSystem.getContactById(contactId);
+        if (!contact || !contact.threat) return;
+
+        const missionPlan = this.missionPlanner.generateMissionPlan(contactId);
+        this.missionPlanner.renderMissionPlan(missionPlan, 'missionResult');
+    }
+
+    refreshContacts() {
+        console.log('🔄 Generating new warfare scenario...');
+        this.detectionSystem.generateRealisticScenario('mixed');
+        this.render();
+        console.log(`✅ New scenario: ${this.detectionSystem.getContactStats().total} contacts`);
+    }
+
+    startUpdateLoops() {
+        // Radar animation loop (60 FPS)
+        this.radarInterval = setInterval(() => {
+            this.radar.draw();
+        }, 1000 / 60);
+
+        // Data update loop (every 3 seconds)
+        this.updateInterval = setInterval(() => {
+            // Update contact positions
+            this.detectionSystem.updateContactPositions();
+
+            // Simulate inventory changes
+            if (Math.random() < 0.3) {
+                this.inventorySystem.simulateUsage();
+            }
+            if (Math.random() < 0.2) {
+                this.inventorySystem.simulateRestock();
+            }
+
+            // Render updates
+            this.render();
+
+            // Occasionally add new contacts
+            if (Math.random() < 0.08 && this.detectionSystem.getAllContacts().length < 30) {
+                // Pick a random classification
+                const allTypes = ['combatDrone', 'fighterJet', 'commercialAirliner', 'alliedFighter', 'destroyer', 'mainBattleTank'];
+                const randomType = allTypes[Math.floor(Math.random() * allTypes.length)];
+                const newContact = this.detectionSystem.createContact(randomType);
+                this.detectionSystem.addContact(newContact);
+                console.log(`📡 New contact detected: ${newContact.id} (${newContact.classData.name})`);
+            }
+
+            // Remove contacts that are too close (simulating neutralization or pass-through)
+            const contacts = this.detectionSystem.getAllContacts();
+            contacts.forEach(contact => {
+                if (contact.distance < 30 && Math.random() < 0.3) {
+                    this.detectionSystem.removeContact(contact.id);
+                    if (contact.threat) {
+                        console.log(`✅ Threat ${contact.id} neutralized`);
+                    } else {
+                        console.log(`✓ Contact ${contact.id} left detection range`);
+                    }
+                }
+            });
+
+        }, 3000);
+
+        // Metrics update loop (every 1 second)
+        setInterval(() => {
+            this.analytics.renderMetrics('metricsGrid', this.detectionSystem, this.inventorySystem);
+        }, 1000);
+    }
+
+    stop() {
+        if (this.updateInterval) {
+            clearInterval(this.updateInterval);
+        }
+        if (this.radarInterval) {
+            clearInterval(this.radarInterval);
+        }
+    }
+}
+
+// Initialize app when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const app = new QuantumRadarApp();
+    app.initialize();
+
+    // Make app globally available for debugging
+    window.quantumRadarApp = app;
+});

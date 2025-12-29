@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIP - Quantum Radar Intelligence Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .module-card {
+            background: linear-gradient(135deg, rgba(0, 20, 40, 0.8), rgba(0, 10, 30, 0.9));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .module-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d4ff;
+            box-shadow: 0 8px 30px rgba(0, 212, 255, 0.4);
+            background: linear-gradient(135deg, rgba(0, 30, 60, 0.9), rgba(0, 20, 50, 1));
+        }
+
+        .module-number {
+            display: inline-block;
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+        }
+
+        .module-name {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .module-purpose {
+            color: #aaa;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .module-launch-btn {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .module-launch-btn:hover {
+            background: linear-gradient(135deg, #00ffff, #00d4ff);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.6);
+        }
+
+        .layer-section {
+            margin-bottom: 40px;
+        }
+
+        .layer-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            padding: 15px 20px;
+            border-left: 4px solid;
+            margin-bottom: 25px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Overlay (same as before) -->
+    <div id="login-overlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <div
+            style="border: 2px solid #ffcc00; padding: 40px; max-width: 400px; width: 80%; background: rgba(20, 20, 20, 0.9); box-shadow: 0 0 20px rgba(255, 204, 0, 0.2); text-align: center;">
+            <div style="color: #ffcc00; font-size: 1.5rem; margin-bottom: 10px;">⚠️ UNAUTHORIZED ACCESS PROHIBITED</div>
+            <div style="color: #aaa; margin-bottom: 20px; font-family: monospace;">DEPARTMENT OF DEFENSE // QRIP SECURE
+                GATEWAY</div>
+
+            <div style="margin-bottom: 15px; text-align: left;">
+                <label style="color: #00d4ff; display: block; margin-bottom: 5px;">USERNAME</label>
+                <input type="text" id="loginUser" value="admin"
+                    style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; padding: 10px; color: #fff;">
+            </div>
+
+            <div style="margin-bottom: 20px; text-align: left;">
+                <label style="color: #00d4ff; display: block; margin-bottom: 5px;">PASSPHRASE</label>
+                <input type="password" id="loginPass" value="quantum123"
+                    style="width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; padding: 10px; color: #fff;">
+            </div>
+
+            <button id="loginBtn" class="btn btn-primary"
+                style="width: 100%; border-color: #ffcc00; color: #ffcc00;">AUTHENTICATE</button>
+            <div id="loginMsg" style="margin-top: 15px; color: #ff3232; min-height: 20px; font-size: 0.9rem;"></div>
+        </div>
+        <div style="margin-top: 20px; color: #555; font-size: 0.8rem;">
+            SYSTEM USE IS MONITORED. VIOLATORS WILL BE PROSECUTED.
+        </div>
+    </div>
+
+    <!-- Main Application Content -->
+    <div class="app-container" id="appContent" style="filter: blur(5px); pointer-events: none;">
+        <!-- Header -->
+        <header class="app-header"
+            style="display: flex; justify-content: space-between; align-items: center; padding-right: 20px;">
+            <div>
+                <h1>Quantum Radar Intelligence Platform</h1>
+                <div class="subtitle">28-Module Enterprise Architecture • MIL-STD Compliant</div>
+            </div>
+            <div class="header-status" style="display: flex; gap: 20px; font-family: monospace; font-size: 0.9rem;">
+                <div
+                    style="border: 1px solid #ffcc00; padding: 5px 10px; color: #ffcc00; background: rgba(255, 204, 0, 0.1);">
+                    DEFCON: <span style="font-weight: bold;">3</span>
+                </div>
+                <div
+                    style="border: 1px solid #00ff00; padding: 5px 10px; color: #00ff00; background: rgba(0, 255, 0, 0.1);">
+                    LINK-16: <span style="font-weight: bold; animation: blink 2s infinite;">SECURE</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Module Dashboard -->
+        <div style="padding: 30px; max-width: 1600px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 40px;">
+                <h2
+                    style="font-size: 2.5rem; color: #00d4ff; font-family: 'Orbitron', sans-serif; margin-bottom: 10px;">
+                    🔧 SYSTEM MODULE COMMAND CENTER
+                </h2>
+                <p style="color: #aaa; font-size: 1.1rem;">Select a module to launch its control interface</p>
+            </div>
+
+            <!-- Layer A: Quantum Radar Core -->
+            <div class="layer-section">
+                <div class="layer-title" style="color: #00d4ff; border-color: #00d4ff;">
+                    Layer A: Quantum Radar Core
+                </div>
+                <div class="module-grid">
+                    <div class="module-card" onclick="window.launchModule(1)">
+                        <div class="module-number">MODULE 1</div>
+                        <div class="module-name">QRIP Core Radar Engine</div>
+                        <div class="module-purpose">Central processor integrating quantum illumination + classical radar
+                            DSP</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(2)">
+                        <div class="module-number">MODULE 2</div>
+                        <div class="module-name">Quantum Illumination Simulator</div>
+                        <div class="module-purpose">Simulates entangled photon detection for stealth objects</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(3)">
+                        <div class="module-number">MODULE 3</div>
+                        <div class="module-name">Classical DSP Engine</div>
+                        <div class="module-purpose">Filters, transforms, and enhances classical radar data</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(4)">
+                        <div class="module-number">MODULE 4</div>
+                        <div class="module-name">Radar Network Fusion Engine</div>
+                        <div class="module-purpose">Fuses data from multiple radars (land/air/sea)</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer B: Threat Intelligence -->
+            <div class="layer-section">
+                <div class="layer-title" style="color: #ffcc00; border-color: #ffcc00;">
+                    Layer B: Threat Intelligence
+                </div>
+                <div class="module-grid">
+                    <div class="module-card" onclick="window.launchModule(5)">
+                        <div class="module-number">MODULE 5</div>
+                        <div class="module-name">AI Threat Cognition Engine</div>
+                        <div class="module-purpose">Classifies threat type & intent using LSTM/Vision Transformers</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(6)">
+                        <div class="module-number">MODULE 6</div>
+                        <div class="module-name">Micro-Doppler Pattern Analyzer</div>
+                        <div class="module-purpose">Detects propeller signatures and gait patterns</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(7)">
+                        <div class="module-number">MODULE 7</div>
+                        <div class="module-name">Swarm Behaviour Prediction Engine</div>
+                        <div class="module-purpose">Predicts group swarm intent using multi-agent ML</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(8)">
+                        <div class="module-number">MODULE 8</div>
+                        <div class="module-name">Hypersonic Track Predictor</div>
+                        <div class="module-purpose">High-speed target prediction with non-linear Kalman</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer EW: Electronic Warfare -->
+            <div class="layer-section">
+                <div class="layer-title" style="color: #ff3366; border-color: #ff3366;">
+                    Layer EW: Electronic Warfare
+                </div>
+                <div class="module-grid">
+                    <div class="module-card" onclick="window.launchModule(9)">
+                        <div class="module-number">MODULE 9</div>
+                        <div class="module-name">Jammer Detection Engine</div>
+                        <div class="module-purpose">Identifies EW interference patterns via DRFM fingerprinting</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(10)">
+                        <div class="module-number">MODULE 10</div>
+                        <div class="module-name">Anti-DRFM Countermeasure Engine</div>
+                        <div class="module-purpose">Defeats replay/ghost targets with time-coded waveforms</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                    <div class="module-card" onclick="window.launchModule(11)">
+                        <div class="module-number">MODULE 11</div>
+                        <div class="module-name">Noise Floor Inflation Detector</div>
+                        <div class="module-purpose">Identifies broadband jamming via noise variance statistics</div>
+                        <button class="module-launch-btn">▶ LAUNCH MODULE</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Continue for ALL 28 modules... -->
+            <!-- Layer D, H, C, I, E, K sections follow same pattern -->
+
+        </div>
+    </div>
+
+    <!-- Load module manager -->
+    <script src="js/modules/module-manager.js"></script>
+    <script>
+        // Simple login
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('appContent').style.filter = 'none';
+            document.getElementById('appContent').style.pointerEvents = 'all';
+        });
+
+        // Global launch function
+        window.launchModule = function (moduleId) {
+            console.log('Launching module:', moduleId);
+            if (window.moduleManager) {
+                window.moduleManager.openModule(moduleId);
+            } else {
+                alert('Module system loading... Please wait a moment and try again.');
+            }
+        };
+    </script>
+</body>
+
+</html>

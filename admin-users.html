@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIP - Super Admin User Management</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🔑 Super Admin - User Management</h1>
+            <button onclick="window.close()" class="btn">← Back to Modules</button>
+        </header>
+
+        <div class="panel" style="margin: 20px;">
+            <div class="panel-header">
+                <h2 class="panel-title">Manage Users & Permissions</h2>
+            </div>
+
+            <div style="padding: 30px;">
+                <!-- Create New User -->
+                <div
+                    style="background: rgba(0,212,255,0.05); padding: 20px; border-left: 4px solid #00d4ff; margin-bottom: 30px;">
+                    <h3 style="color: #00d4ff; margin-bottom: 15px;">➕ Create New User</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 5px;">Username:</label>
+                            <input type="text" id="newUsername" placeholder="Enter username"
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; color: #fff;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px;">Password:</label>
+                            <input type="password" id="newPassword" placeholder="Enter password"
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; color: #fff;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 5px;">Role:</label>
+                            <select id="newRole"
+                                style="width: 100%; padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid #00d4ff; color: #fff;">
+                                <option value="user">User - Basic Access (7 modules)</option>
+                                <option value="data">Data Analyst - Analytics (17 modules)</option>
+                                <option value="admin">Administrator - Operations (23 modules)</option>
+                                <option value="superadmin">Super Admin - Full Access (29 modules)</option>
+                            </select>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button class="btn btn-primary" onclick="createUser()" style="width: 100%;">Create
+                                User</button>
+                        </div>
+                    </div>
+                    <div id="createMessage" style="color: #ffcc00;"></div>
+                </div>
+
+                <!-- Existing Users List -->
+                <div style="margin-bottom: 30px;">
+                    <h3 style="color: #ffcc00; margin-bottom: 15px;">👥 Existing Users</h3>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(0,212,255,0.1);">
+                                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0,212,255,0.2);">
+                                    Username</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0,212,255,0.2);">Role
+                                </th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0,212,255,0.2);">
+                                    Access Level</th>
+                                <th style="padding: 12px; text-align: left; border: 1px solid rgba(0,212,255,0.2);">
+                                    Modules</th>
+                                <th style="padding: 12px; text-align: center; border: 1px solid rgba(0,212,255,0.2);">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersList">
+                            <tr>
+                                <td colspan="5" style="padding: 20px; text-align: center; color: #aaa;">Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Module Access Matrix -->
+                <div id="accessMatrix"
+                    style="display: none; background: rgba(255,204,0,0.05); padding: 20px; border-left: 4px solid #ffcc00;">
+                    <h3 style="color: #ffcc00; margin-bottom: 15px;">🔐 Module Access Control</h3>
+                    <div style="margin-bottom: 10px;">
+                        <strong>Editing:</strong> <span id="editingUser" style="color: #00d4ff;"></span>
+                    </div>
+                    <div id="moduleCheckboxes"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; margin-top: 15px;">
+                        <!-- Populated by JS -->
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="saveAccess()">Save Changes</button>
+                        <button class="btn" onclick="closeAccessMatrix()">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rbac.js"></script>
+    <script>
+        let currentlyEditing = null;
+        let userDatabase = {}; // Simulated user database
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Check if super admin
+            const userData = sessionStorage.getItem('qrip_user');
+            if (!userData) {
+                alert('No active session');
+                window.close();
+                return;
+            }
+
+            const user = JSON.parse(userData);
+            if (user.role !== 'superadmin') {
+                alert('⛔ ACCESS DENIED\n\nOnly Super Administrators can manage users.');
+                window.close();
+                return;
+            }
+
+            // Load initial users from rbac.js
+            loadUsers();
+        });
+
+        function loadUsers() {
+            if (!window.rbacManager) {
+                setTimeout(loadUsers, 100);
+                return;
+            }
+
+            // Get users from RBAC manager
+            const users = window.rbacManager.users;
+            userDatabase = JSON.parse(JSON.stringify(users)); // Clone
+
+            const tbody = document.getElementById('usersList');
+            tbody.innerHTML = '';
+
+            Object.keys(users).forEach(username => {
+                const userData = users[username];
+                const roleData = window.rbacManager.roles[userData.role];
+
+                const row = document.createElement('tr');
+                row.style.borderBottom = '1px solid rgba(0,212,255,0.1)';
+                row.innerHTML = `
+                    <td style="padding: 12px;">${username}</td>
+                    <td style="padding: 12px; color: ${roleData.color};">${roleData.name}</td>
+                    <td style="padding: 12px;">Level ${roleData.level}</td>
+                    <td style="padding: 12px;">${roleData.allowedModules.length} modules</td>
+                    <td style="padding: 12px; text-align: center;">
+                        <button class="btn" style="font-size: 0.85rem; padding: 5px 10px;" onclick="editAccess('${username}')">✏️ Edit Access</button>
+                        <button class="btn" style="font-size: 0.85rem; padding: 5px 10px; background: #ff3366; border-color: #ff3366;" onclick="deleteUser('${username}')">🗑️ Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function createUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const role = document.getElementById('newRole').value;
+
+            if (!username || !password) {
+                document.getElementById('createMessage').textContent = '❌ Username and password required';
+                return;
+            }
+
+            if (userDatabase[username]) {
+                document.getElementById('createMessage').textContent = '❌ User already exists';
+                return;
+            }
+
+            // Add to database (simulated)
+            userDatabase[username] = { password: password, role: role };
+
+            document.getElementById('createMessage').textContent = `✅ User "${username}" created successfully as ${window.rbacManager.roles[role].name}`;
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+
+            // Reload list
+            loadUsers();
+        }
+
+        function deleteUser(username) {
+            if (username === 'superadmin') {
+                alert('❌ Cannot delete the super admin account');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete user "${username}"?`)) {
+                delete userDatabase[username];
+                alert(`✅ User "${username}" deleted successfully`);
+                loadUsers();
+            }
+        }
+
+        function editAccess(username) {
+            currentlyEditing = username;
+            const roleData = window.rbacManager.roles[userDatabase[username].role];
+
+            document.getElementById('editingUser').textContent = `${username} (${roleData.name})`;
+            document.getElementById('accessMatrix').style.display = 'block';
+
+            // Generate checkboxes for all 29 modules
+            const container = document.getElementById('moduleCheckboxes');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 29; i++) {
+                const isAllowed = roleData.allowedModules.includes(i);
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <label style="display: flex; align-items: center; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 4px; cursor: pointer;">
+                        <input type="checkbox" ${isAllowed ? 'checked' : ''} value="${i}" style="margin-right: 10px; width: 18px; height: 18px;">
+                        <span>Module ${i}</span>
+                    </label>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function closeAccessMatrix() {
+            document.getElementById('accessMatrix').style.display = 'none';
+            currentlyEditing = null;
+        }
+
+        function saveAccess() {
+            const checkboxes = document.querySelectorAll('#moduleCheckboxes input[type="checkbox"]');
+            const allowedModules = [];
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) {
+                    allowedModules.push(parseInt(cb.value));
+                }
+            });
+
+            alert(`✅ Access updated for "${currentlyEditing}"\n\nNow has access to: ${allowedModules.length} modules\n\n(In production, this would update the database)`);
+            closeAccessMatrix();
+        }
+    </script>
+</body>
+
+</html>
