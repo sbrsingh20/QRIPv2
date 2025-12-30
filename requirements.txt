@@ -1,3 +1,5 @@
 # Streamlit Cloud requires explicit version specifications
 # Using a stable, well-tested version range
+# Upper bound <2.0.0 prevents breaking changes from major version updates
+# which could break the custom component and HTML embedding functionality
 streamlit>=1.28.0,<2.0.0

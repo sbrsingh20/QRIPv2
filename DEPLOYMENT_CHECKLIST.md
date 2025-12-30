@@ -72,8 +72,8 @@ git push origin main
 2. Sign in with GitHub
 3. Click "New app"
 4. Configure:
-   - Repository: `sbrsingh20/QRIPv2`
-   - Branch: `main` (or your branch)
+   - Repository: `sbrsingh20/QRIPv2` (replace with your repository)
+   - Branch: `main` (or your deployment branch)
    - Main file path: `streamlit_app.py`
 5. Click "Deploy"
 6. Wait 2-3 minutes for deployment
