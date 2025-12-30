@@ -163,7 +163,8 @@ streamlit run streamlit_app.py
 # - Deploy automatically
 ```
 
-📘 **[Complete Streamlit Deployment Guide](STREAMLIT_DEPLOYMENT.md)** - Step-by-step instructions for deploying on Streamlit Cloud.
+📘 **[Complete Streamlit Deployment Guide](STREAMLIT_DEPLOYMENT.md)** - Step-by-step instructions for deploying on Streamlit Cloud.  
+📦 **[Installation Requirements](INSTALLATION_REQUIREMENTS.md)** - Detailed explanation of all required installation files and configuration.
 
 ---
 
