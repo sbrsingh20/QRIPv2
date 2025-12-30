@@ -1,3 +1,0 @@
-# System dependencies for Streamlit deployment
-# Add any apt-get packages needed here
-# Currently no system packages required for QRIP

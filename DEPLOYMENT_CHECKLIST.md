@@ -17,7 +17,7 @@ Use this checklist before deploying to Streamlit Cloud to ensure all requirement
 ### ✅ Configuration Files
 - [x] `.python-version` - Python 3.11 specification
 - [x] `runtime.txt` - Python version for Streamlit Cloud
-- [x] `packages.txt` - System dependencies (empty, no system packages needed)
+- [x] `packages.txt` - System dependencies (completely empty - no comments allowed)
 - [x] `.streamlit/config.toml` - Streamlit theme and server configuration
 - [x] `.gitignore` - Excludes cache and build files
 

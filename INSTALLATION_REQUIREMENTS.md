@@ -25,15 +25,15 @@ streamlit>=1.28.0,<2.0.0
 **Purpose:** Specifies system-level (apt-get) dependencies
 
 ```txt
-# System dependencies for Streamlit deployment
-# Add any apt-get packages needed here
-# Currently no system packages required for QRIP
+
 ```
 
 **Key Points:**
 - Used for Linux system packages (not Python packages)
+- **Must be completely empty** if no system packages are needed (Streamlit Cloud treats comments as package names)
 - Empty for QRIP since no system packages are needed
 - Examples of what might go here: `libgl1-mesa-dev`, `ffmpeg`, `poppler-utils`
+- **Important:** Do not add comments in this file - leave it completely empty if unused
 
 ### 3. `.python-version` (RECOMMENDED)
 **Location:** Root directory of the repository  
